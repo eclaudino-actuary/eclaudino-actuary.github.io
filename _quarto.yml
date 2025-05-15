@@ -3,18 +3,27 @@ project:
   output-dir: docs
 
 website:
-  title: "Final Project Website"
-  navbar:
+  title: "Home"
+  open-graph: true # https://quarto.org/docs/websites/website-tools.html#open-graph
+  page-footer: "Made with ❤️ and Quarto"
+
+  navbar:  
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
+        text: About
+        icon: person-fill
+        
+      - href: Analysis.qmd
+        text: Modern Data Analysis Project
+        icon: bar-chart-line-fill
+    
 
 format:
   html:
-    theme: cosmo
-    css: styles.css
-    toc: true
+    backgroundcolor: "#f0f8ff"
+    fontcolor: "#0047AB"
+    theme: 
+      - lumen
+      - custom.scss
 
-editor: visual
 

@@ -1,0 +1,295 @@
+---
+title: "Understanding Fire Severity in California"
+---
+
+## Motivation and Context
+
+```{r}
+#| label: do this first
+#| echo: false
+#| message: false
+
+# change this to the location of your Quarto file containing your project; then delete this comment
+here::i_am("Analysis.qmd")
+```
+
+The unfortunate series of destructive fires in Los Angeles County earlier this January motivated me to focus my final project in analyzing fire incidents across the counties of California in the past 12 years. The data analysis includes building linear models to understand relationships between the predictor variables of a fire and its severity, measured by acres burned. Plus, answering some interesting and important inference questions:
+
+-   Does the severity of a fire depend on the season of the year?
+
+-   Are wildfires in California worsening over time in terms of severity?
+
+-   Are there locations on California where fires are more likely to happen?
+
+This problem is particularly interesting to me because I am majoring in Mathematics with an actuarial science concentration and plan to build my actuarial career in the Property and Casualty insurance industry. Hence, wildfires are a big factor when it comes to Homeowners Insurance and understanding more about them can help me make predictions and provide risk management strategies for my future company.
+
+## Main Objective
+
+I believe my findings could be extremely relevant for the State of California and its residents since multiple homes and families are affected by this recurring devastating disaster. I believe tackling this problem is a perfect way to link my career interest with a way to significantly help California fire victims. The inference that will be made from my data analysis could be used as an incentive to society to create models better and better overtime.
+
+## Packages
+
+```{r packages used for data analysis}
+#| label: load packages
+#| message: false
+#| warning: false
+
+library(here)
+library(readr)
+library(dplyr)
+library(rsample)
+library(ggplot2)
+library(recipes)
+library(naniar)
+library(broom)
+library(lubridate)
+library(tidyr)
+```
+
+| Package | Function |
+|--------------------------------|----------------------------------------|
+| [here](https://github.com/jennybc/here_here) | to easily load and save data |
+| [readr](https://readr.tidyverse.org/) | to import the CSV file data |
+| [dplyr](https://dplyr.tidyverse.org/) | to massage and summarize data |
+| [rsample](https://rsample.tidymodels.org/) | to split data into training and test sets |
+| [ggplot2](https://ggplot2.tidyverse.org/) | to create nice-looking and informative graphs |
+| [recipes](https://recipes.tidymodels.org/) | to define and apply data transformation steps |
+| [naniar](https://naniar.njtierney.com/) | for visualizing and handling missing data |
+| [broom](https://broom.tidymodels.org/) | for visualizing and handling missing data |
+| [lubridate](https://lubridate.tidyverse.org/) | to simplify working with dates and times |
+
+## Data Description
+
+I am using the fire incident data available at the [CAL FIRE website](https://www.fire.ca.gov/incidents). CalFIRE (California Department of Forestry and Fire Protection) is California’s state agency responsible for fire protection in State Responsibility Areas (SRAs), which include over 31 million acres of wild lands and areas with significant natural resources. CAL FIRE also provides emergency services in cooperation with local governments and handles forest management, fire prevention, and resource protection.
+
+All of the agency's information comes from the fire lines and must be approved by the Incident Commander in charge of managing the incident prior to release. The data then gets compiled by their staff and published in their website for the public to access. In their incidents page, there is a Current Emergency Incidents section where it shows fire related information such as evacuation orders and acres burned through Earthstar Geographics powered by [Esri](http://www.esri.com/), [Genasys](https://protect.genasys.com/search?z=14&latlon=38.134148%2C-121.272219) and [Perimeter](https://perimeterplatform.com/). However, since I needed the whole historical fire data set to perform my analysis , I collected the CSV file, they offered.
+
+The main reasons why they collect the fire incident data includes fastening fire responsiveness, prevention of future fires, to inform the public through statistics, and to create an incentive for more funding towards fire prevention.
+
+**OBS:** It is important to note that the original excel file from CalFIRE contained significant amount of unnecessary raw data, and some wrong/outdated information. Therefore, this will be taken care of in our [**Data Wrangling**]{.underline} section to ensure our Analysis is as precise and professional as possible.
+
+```{r}
+#| label: import data
+#| warning: false
+#| message: false
+
+original_fire <- readr::read_csv(here::here("mapdataall.csv"))
+
+#original historical fire data from CalFIRE
+```
+
+### Data Limitations
+
+CalFIRE makes it clear in their disclaimer that the data provided is intended for general reference rather than detailed scientific or emergency analysis. Therefore, important limitations must be considered when interpreting my model’s conclusions.
+
+**1) Bias in data collection:** One possible source of bias is the fact that CalFIRE reportedly shared that a significant amount of small fires could go under reported, even more so if the incident burns less than 10 acres. Furthermore, another source of bias can be explained by how I performed variable selection during the modeling process. Since I got the data before specifing my linear model, I must account for selection bias.
+
+**2) Variables Mismatches:** The outcome variable in our linear model, acres_burned is the only variable being used in my analysis to define the severity of the fire incidents. However, we are excluding so many crucial variables that influence a fire severity in the real-world such as structures destroyed, rural/urban differences, fire escalation, lack of firefighters, area accessibility, injuries, fatalities, more expensive/cheaper neighborhoods, total loss, and more. Plus, the variables incident_season and incident_county are very broad. I am not accounting for local weather, vegetation, source of fire, and human factors that could influence a fire behavior in the real-world.
+
+**3) Model Transferrability:** My model is only accounting for fires in California in the past 12 years. Hence, the model might be inappropriate for other regions that present different weather, air humidity, terrain, biodiversity, population demographics, government funding, and more.
+
+## Data Wrangling
+
+#Data Clean Up
+
+First of all, I must make sure this data set contains only historical fire data. CalFIRE predominantly oversee fire incidents but not exclusively. After some digging in `incident_type`, there were indeed two incidents reported as flood and one as earthquake. Hence, let's remove them from our original data set and change the updated data set name for good practice.
+
+```{r}
+fire_data <- original_fire %>%
+  filter(!incident_type %in% c("Flood", "Earthquake"))
+```
+
+We should be worried about the observations that have missing data for the `incident_type` variable because what if they are not a fire incident. Hence, I made sure to check the `incident_name` manually to ensure all of the observations in our data set were only fire incidents.
+
+Furthermore, since acres burned will be our response variable we must make sure we are only looking at fires that were already contained so that we know exactly how many acres were affected. Hence, the chunk below removes all the fire incidents that were still active as of May 2025. In this case, there were only three.
+
+```{r}
+fire_data <- original_fire %>%
+  filter(!is_active %in% c("Y"))
+```
+
+#Variable Selection
+
+Now, let's take a look at the first 30 rows in the original data set provided by CalFIRE and understand the variables we are working with:
+
+```{r}
+head(original_fire, 30)
+```
+
+We can see there are some unnecessary variables that can be removed from this data set because they will be irrelevant to our analysis. More specifically:
+
+-   `incident_is_final` - I am only considering incidents that are final because days active is one of my predictor variables. Plus, there were only 3 fires that were active on the data set. They will be deleted in the chunks below.
+
+-   `incident_date_last_update` - Irrelevant for our analysis since fires considered are final.
+
+-   `incident_county` - I modified this variable to only include counties in California.
+
+-   `incident_location` - This column described the location of the fire, some cells described which freeway, other cells described off of which street, other cells gave more estimations (i.e. near the 4500 block of Chuckwagon Drive, Copperopolis). It would be very ambitious to consider this a variable.
+
+-   `incident_containment` - This column showed what percentage of the fire was contained, while 2794 out of 2864 were contained, the data showed 70 cells with missing data or less than 100% contained. However, this seems to be a variable that was not updated because all of those 70 fires were extinguished already, hence they have to have been contained.
+
+-   `incident_longitude` and `incident_latitude` - Irrelevant for our analysis, no need for the location of the fire to be this specific.
+
+-   `incident_type` - The original data set did contain two floods and one earthquake incidents that I deleted for the polished excel file. Also, this variable differentiated fire from wildfire. Since we are not getting that specific I decided to drop this variable as well.
+
+-   `incident_date_extinguished` and `incident_dateonly_extinguished` - I was going to use this variable to calculate for how long each fire has been active. However, after some digging, I found multiple inconsistencies in the reportedly duration of the fire. Some of them showed that they were active for more than a year! Plus, I found that if we consider `incident_date_extinguished` , near half of the fires supposedly were active for more than 60 days, which does not sound reasonable at all. However, I did not lose hope with this data set from CalFIRE because the `incident_date_created` has been precisely accurate with every fire I researched on my own. Similarly with `acres_burned` .
+
+-   `incident_date_created` - Repetitive, we already have `incident_dateonly_created`.
+
+-   `incident_administrative_unit` , `incident_administrative_unit_url`, `incident_control` , `incident_cooperating_agencies` , `incident_id` , `incident_url`, `calfire_incident` , `notification_desired` - Irrelevant for our analysis.
+
+Let's remove those variables now,
+
+```{r}
+fire_data <- fire_data %>%
+  select(-c(incident_is_final, incident_date_last_update, incident_location, incident_containment, incident_longitude, incident_latitude, incident_type, incident_date_extinguished, incident_dateonly_extinguished, incident_administrative_unit, incident_administrative_unit_url, incident_control, incident_cooperating_agencies, incident_id , incident_url, calfire_incident, notification_desired, incident_date_created, is_active))
+
+# To remove all the variables we deemed unecessary.
+```
+
+Now that we have removed those unnecessary variables. Let's extract other interesting variables from the given ones and perhaps change their names for our data set to look more professional. For example, from the date the fire was created we can extract the year, the month, and the season that fire originated. Hence, here are the variables we are generating from the given data:
+
+-   `year` - what year the fire originated.
+
+-   `month` - what month the fire originated in numeric form.
+
+-   `season` - what was the season when the fire originated.
+
+-   `multi_county` - whether the fire has affected more than one county.
+
+-   `is_complex` - a fire is called a "complex" when two or more fires burn in the same general area and are managed under a single incident command or unified command.
+
+```{r}
+fire_data <- fire_data %>%
+  mutate(
+    year = year(incident_dateonly_created),
+    month = month(incident_dateonly_created),
+    season = case_when(
+      month %in% c(12, 1, 2) ~ "Winter",
+      month %in% c(3, 4, 5)  ~ "Spring",
+      month %in% c(6, 7, 8)  ~ "Summer",
+      month %in% c(9, 10, 11) ~ "Fall",
+      TRUE ~ NA_character_
+    ),
+    multi_county = grepl(",", incident_county),
+    
+    is_complex = grepl("Complex", incident_name)
+  )
+```
+
+Now, let's change some of the variables names for :
+
+```{r}
+fire_data <- fire_data %>%
+  rename(
+    name = incident_name,
+    county = incident_county,
+    severity = incident_acres_burned,
+    date = incident_dateonly_created,
+  )
+
+```
+
+Finally, let's take a look at our updated and clean data set. We are now one step closer to perform our Analysis.
+
+```{r}
+head(fire_data, 30)
+```
+
+#Data Split
+
+Lastly, we should split the data into a training set (`fire_train`) and test set (`fire_test`). The recommended amount of data in the training set is roughly 80%, thus we shall follow that. We must apply this split to our data set to avoid selection bias since I precisely chose the variables I wanted to perform our analysis on.
+
+```{r}
+set.seed(100)
+
+n <- nrow(fire_data)
+train_indices <- sample(n, size = floor(0.8*n))
+
+fire_train <- fire_data[train_indices,]
+fire_test <- fire_data[-train_indices,]
+```
+
+## Exploratory Data Analysis
+
+In this section, we will explore our variables by looking at their distribution relationship between our categorical variables and our response variable, `severity`.
+
+#Missing Data
+
+Before exploring our variables, we must address how much of the data is missing and how can we tackle this problem.
+
+```{r}
+    fire_data |>
+      miss_var_summary()
+```
+
+Hence, we have 62 missing data points in total in our data. More precisely, 52 reports missing for amount of acres burned and 10 reports missing for which county the fire happened, which represents 1.82% and 0.35% of those variables respectively total data. Therefore, this is a good sign that our data set has barely any data missing. We could even visualize how insignificant the missingness is related to our overall data,
+
+```{r}
+vis_miss(fire_data, cluster = TRUE, sort_miss = TRUE)
+```
+
+Therefore, approximately 2% of the data had missing values. I opted to remove those rows. This avoids the need for potentially biased imputation of the target variable, with methods such as *Mean/Median/Mode*, *linear model*, or *softImpute*. The small proportion of missing data will not significantly impact our overall analysis.
+
+```{r}
+fire_data <- fire_data %>% 
+  drop_na()
+```
+
+```{r}
+    fire_data |>
+      miss_var_summary()
+```
+
+#Exploring Variables
+
+```{r}
+summary(fire_train)
+```
+
+```{r eval=FALSE}
+ggplot(data = fire_train, mapping = aes(x = overall)
+       ) +
+  
+  geom_histogram(center = 1.125, binwidth = 0.25)
+
+```
+
+```{r eval=FALSE}
+fire_train |>
+  summarize(
+    num_total = n(),
+    mean = mean(fire_train$severity),
+    sd = sd(fire_train$severity),
+    min = min(fire_train$severity),
+    Q1 = quantile(fire_train$severity, 0.25),
+    median = median(fire_train$severity),
+    Q3 = quantile(fire_train$severity, 0.75),
+    max = max(fire_train$severity)
+    )
+
+```
+
+```{r eval= FALSE}
+ggplot(fire_data, aes(x = severity)) +
+  geom_histogram(bins = 50, fill = "darkred", color = "white") +
+  scale_x_log10() +
+  labs(title = "Log-Scale Distribution of Fire Severity", x = "Log(Acres Burned)", y = "Number of Fires") +
+  theme_minimal()
+```
+
+```{r}
+
+```
+
+## Modeling
+
+```{r}
+
+```
+
+## Insights
+
+## Limitations and Future Work
+
+## Reflection

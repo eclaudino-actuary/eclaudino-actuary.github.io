@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Understanding Fire Severity in California – Home</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<meta property="og:title" content="Understanding Fire Severity in California – Home">
+<meta property="og:description" content="">
+<meta property="og:site_name" content="Home">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Home</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> <i class="bi bi-person-fill" role="img">
+</i> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./Analysis.html" aria-current="page"> <i class="bi bi-bar-chart-line-fill" role="img">
+</i> 
+<span class="menu-text">Modern Data Analysis Project</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Understanding Fire Severity in California</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="motivation-and-context" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-and-context">Motivation and Context</h2>
+<p>The unfortunate series of destructive fires in Los Angeles County earlier this January motivated me to focus my final project in analyzing fire incidents across the counties of California in the past 12 years. The data analysis includes building linear models to understand relationships between the predictor variables of a fire and its severity, measured by acres burned. Plus, answering some interesting and important inference questions:</p>
+<ul>
+<li><p>Does the severity of a fire depend on the season of the year?</p></li>
+<li><p>Are wildfires in California worsening over time in terms of severity?</p></li>
+<li><p>Are there locations on California where fires are more likely to happen?</p></li>
+</ul>
+<p>This problem is particularly interesting to me because I am majoring in Mathematics with an actuarial science concentration and plan to build my actuarial career in the Property and Casualty insurance industry. Hence, wildfires are a big factor when it comes to Homeowners Insurance and understanding more about them can help me make predictions and provide risk management strategies for my future company.</p>
+</section>
+<section id="main-objective" class="level2">
+<h2 class="anchored" data-anchor-id="main-objective">Main Objective</h2>
+<p>I believe my findings could be extremely relevant for the State of California and its residents since multiple homes and families are affected by this recurring devastating disaster. I believe tackling this problem is a perfect way to link my career interest with a way to significantly help California fire victims. The inference that will be made from my data analysis could be used as an incentive to society to create models better and better overtime.</p>
+</section>
+<section id="packages" class="level2">
+<h2 class="anchored" data-anchor-id="packages">Packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(recipes)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(naniar)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://github.com/jennybc/here_here">here</a></td>
+<td>to easily load and save data</td>
+</tr>
+<tr class="even">
+<td><a href="https://readr.tidyverse.org/">readr</a></td>
+<td>to import the CSV file data</td>
+</tr>
+<tr class="odd">
+<td><a href="https://dplyr.tidyverse.org/">dplyr</a></td>
+<td>to massage and summarize data</td>
+</tr>
+<tr class="even">
+<td><a href="https://rsample.tidymodels.org/">rsample</a></td>
+<td>to split data into training and test sets</td>
+</tr>
+<tr class="odd">
+<td><a href="https://ggplot2.tidyverse.org/">ggplot2</a></td>
+<td>to create nice-looking and informative graphs</td>
+</tr>
+<tr class="even">
+<td><a href="https://recipes.tidymodels.org/">recipes</a></td>
+<td>to define and apply data transformation steps</td>
+</tr>
+<tr class="odd">
+<td><a href="https://naniar.njtierney.com/">naniar</a></td>
+<td>for visualizing and handling missing data</td>
+</tr>
+<tr class="even">
+<td><a href="https://broom.tidymodels.org/">broom</a></td>
+<td>for visualizing and handling missing data</td>
+</tr>
+<tr class="odd">
+<td><a href="https://lubridate.tidyverse.org/">lubridate</a></td>
+<td>to simplify working with dates and times</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-description" class="level2">
+<h2 class="anchored" data-anchor-id="data-description">Data Description</h2>
+<p>I am using the fire incident data available at the <a href="https://www.fire.ca.gov/incidents">CAL FIRE website</a>. CalFIRE (California Department of Forestry and Fire Protection) is California’s state agency responsible for fire protection in State Responsibility Areas (SRAs), which include over 31 million acres of wild lands and areas with significant natural resources. CAL FIRE also provides emergency services in cooperation with local governments and handles forest management, fire prevention, and resource protection.</p>
+<p>All of the agency’s information comes from the fire lines and must be approved by the Incident Commander in charge of managing the incident prior to release. The data then gets compiled by their staff and published in their website for the public to access. In their incidents page, there is a Current Emergency Incidents section where it shows fire related information such as evacuation orders and acres burned through Earthstar Geographics powered by <a href="http://www.esri.com/">Esri</a>,&nbsp;<a href="https://protect.genasys.com/search?z=14&amp;latlon=38.134148%2C-121.272219">Genasys</a>&nbsp;and&nbsp;<a href="https://perimeterplatform.com/">Perimeter</a>. However, since I needed the whole historical fire data set to perform my analysis , I collected the CSV file, they offered.</p>
+<p>The main reasons why they collect the fire incident data includes fastening fire responsiveness, prevention of future fires, to inform the public through statistics, and to create an incentive for more funding towards fire prevention.</p>
+<p><strong>OBS:</strong> It is important to note that the original excel file from CalFIRE contained significant amount of unnecessary raw data, and some wrong/outdated information. Therefore, this will be taken care of in our <u><strong>Data Wrangling</strong></u> section to ensure our Analysis is as precise and professional as possible.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>original_fire <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"mapdataall.csv"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#original historical fire data from CalFIRE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="data-limitations" class="level3">
+<h3 class="anchored" data-anchor-id="data-limitations">Data Limitations</h3>
+<p>CalFIRE makes it clear in their disclaimer that the data provided is intended for general reference rather than detailed scientific or emergency analysis. Therefore, important limitations must be considered when interpreting my model’s conclusions.</p>
+<p><strong>1) Bias in data collection:</strong> One possible source of bias is the fact that CalFIRE reportedly shared that a significant amount of small fires could go under reported, even more so if the incident burns less than 10 acres. Furthermore, another source of bias can be explained by how I performed variable selection during the modeling process. Since I got the data before specifing my linear model, I must account for selection bias.</p>
+<p><strong>2) Variables Mismatches:</strong> The outcome variable in our linear model, acres_burned is the only variable being used in my analysis to define the severity of the fire incidents. However, we are excluding so many crucial variables that influence a fire severity in the real-world such as structures destroyed, rural/urban differences, fire escalation, lack of firefighters, area accessibility, injuries, fatalities, more expensive/cheaper neighborhoods, total loss, and more. Plus, the variables incident_season and incident_county are very broad. I am not accounting for local weather, vegetation, source of fire, and human factors that could influence a fire behavior in the real-world.</p>
+<p><strong>3) Model Transferrability:</strong> My model is only accounting for fires in California in the past 12 years. Hence, the model might be inappropriate for other regions that present different weather, air humidity, terrain, biodiversity, population demographics, government funding, and more.</p>
+</section>
+</section>
+<section id="data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling">Data Wrangling</h2>
+<p>#Data Clean Up</p>
+<p>First of all, I must make sure this data set contains only historical fire data. CalFIRE predominantly oversee fire incidents but not exclusively. After some digging in <code>incident_type</code>, there were indeed two incidents reported as flood and one as earthquake. Hence, let’s remove them from our original data set and change the updated data set name for good practice.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> original_fire <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>incident_type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Flood"</span>, <span class="st">"Earthquake"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We should be worried about the observations that have missing data for the <code>incident_type</code> variable because what if they are not a fire incident. Hence, I made sure to check the <code>incident_name</code> manually to ensure all of the observations in our data set were only fire incidents.</p>
+<p>Furthermore, since acres burned will be our response variable we must make sure we are only looking at fires that were already contained so that we know exactly how many acres were affected. Hence, the chunk below removes all the fire incidents that were still active as of May 2025. In this case, there were only three.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> original_fire <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>is_active <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Y"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>#Variable Selection</p>
+<p>Now, let’s take a look at the first 30 rows in the original data set provided by CalFIRE and understand the variables we are working with:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(original_fire, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 30 × 23
+   incident_name  incident_is_final incident_date_last_u…¹ incident_date_created
+   &lt;chr&gt;          &lt;chr&gt;             &lt;dttm&gt;                 &lt;dttm&gt;               
+ 1 Bridge Fire    Y                 2018-01-09 13:46:00    2017-10-31 11:22:00  
+ 2 Pala Fire      Y                 2020-09-16 14:07:35    2009-05-24 14:56:00  
+ 3 River Fire     Y                 2022-10-24 11:39:23    2013-02-24 08:16:00  
+ 4 Fawnskin Fire  Y                 2013-04-22 09:00:00    2013-04-20 17:30:00  
+ 5 Gold Fire      Y                 2013-05-01 07:00:00    2013-04-30 12:59:00  
+ 6 Panther Fire   Y                 2022-10-24 11:40:03    2013-05-01 09:12:00  
+ 7 Silverado Fire Y                 2013-05-01 17:15:00    2013-04-30 23:44:00  
+ 8 Yellow Fire    Y                 2013-05-03 06:15:00    2013-05-01 02:01:00  
+ 9 Summit Fire    Y                 2022-10-24 11:40:42    2013-05-01 12:38:00  
+10 Tres Pinos Fi… Y                 2013-05-03 18:45:00    2013-05-03 11:42:00  
+# ℹ 20 more rows
+# ℹ abbreviated name: ¹​incident_date_last_update
+# ℹ 19 more variables: incident_administrative_unit &lt;chr&gt;,
+#   incident_administrative_unit_url &lt;lgl&gt;, incident_county &lt;chr&gt;,
+#   incident_location &lt;chr&gt;, incident_acres_burned &lt;dbl&gt;,
+#   incident_containment &lt;dbl&gt;, incident_control &lt;chr&gt;,
+#   incident_cooperating_agencies &lt;chr&gt;, incident_longitude &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>We can see there are some unnecessary variables that can be removed from this data set because they will be irrelevant to our analysis. More specifically:</p>
+<ul>
+<li><p><code>incident_is_final</code> - I am only considering incidents that are final because days active is one of my predictor variables. Plus, there were only 3 fires that were active on the data set. They will be deleted in the chunks below.</p></li>
+<li><p><code>incident_date_last_update</code> - Irrelevant for our analysis since fires considered are final.</p></li>
+<li><p><code>incident_county</code> - I modified this variable to only include counties in California.</p></li>
+<li><p><code>incident_location</code> - This column described the location of the fire, some cells described which freeway, other cells described off of which street, other cells gave more estimations (i.e.&nbsp;near the 4500 block of Chuckwagon Drive, Copperopolis). It would be very ambitious to consider this a variable.</p></li>
+<li><p><code>incident_containment</code> - This column showed what percentage of the fire was contained, while 2794 out of 2864 were contained, the data showed 70 cells with missing data or less than 100% contained. However, this seems to be a variable that was not updated because all of those 70 fires were extinguished already, hence they have to have been contained.</p></li>
+<li><p><code>incident_longitude</code> and <code>incident_latitude</code> - Irrelevant for our analysis, no need for the location of the fire to be this specific.</p></li>
+<li><p><code>incident_type</code> - The original data set did contain two floods and one earthquake incidents that I deleted for the polished excel file. Also, this variable differentiated fire from wildfire. Since we are not getting that specific I decided to drop this variable as well.</p></li>
+<li><p><code>incident_date_extinguished</code> and <code>incident_dateonly_extinguished</code> - I was going to use this variable to calculate for how long each fire has been active. However, after some digging, I found multiple inconsistencies in the reportedly duration of the fire. Some of them showed that they were active for more than a year! Plus, I found that if we consider <code>incident_date_extinguished</code> , near half of the fires supposedly were active for more than 60 days, which does not sound reasonable at all. However, I did not lose hope with this data set from CalFIRE because the <code>incident_date_created</code> has been precisely accurate with every fire I researched on my own. Similarly with <code>acres_burned</code> .</p></li>
+<li><p><code>incident_date_created</code> - Repetitive, we already have <code>incident_dateonly_created</code>.</p></li>
+<li><p><code>incident_administrative_unit</code> , <code>incident_administrative_unit_url</code>, <code>incident_control</code> , <code>incident_cooperating_agencies</code> , <code>incident_id</code> , <code>incident_url</code>, <code>calfire_incident</code> , <code>notification_desired</code> - Irrelevant for our analysis.</p></li>
+</ul>
+<p>Let’s remove those variables now,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(incident_is_final, incident_date_last_update, incident_location, incident_containment, incident_longitude, incident_latitude, incident_type, incident_date_extinguished, incident_dateonly_extinguished, incident_administrative_unit, incident_administrative_unit_url, incident_control, incident_cooperating_agencies, incident_id , incident_url, calfire_incident, notification_desired, incident_date_created, is_active))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># To remove all the variables we deemed unecessary.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that we have removed those unnecessary variables. Let’s extract other interesting variables from the given ones and perhaps change their names for our data set to look more professional. For example, from the date the fire was created we can extract the year, the month, and the season that fire originated. Hence, here are the variables we are generating from the given data:</p>
+<ul>
+<li><p><code>year</code> - what year the fire originated.</p></li>
+<li><p><code>month</code> - what month the fire originated in numeric form.</p></li>
+<li><p><code>season</code> - what was the season when the fire originated.</p></li>
+<li><p><code>multi_county</code> - whether the fire has affected more than one county.</p></li>
+<li><p><code>is_complex</code> - a fire is called a “complex”&nbsp;when two or more fires burn in the same general area and are managed under a single incident command or unified command.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(incident_dateonly_created),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> <span class="fu">month</span>(incident_dateonly_created),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">season =</span> <span class="fu">case_when</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">1</span>, <span class="dv">2</span>) <span class="sc">~</span> <span class="st">"Winter"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)  <span class="sc">~</span> <span class="st">"Spring"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>)  <span class="sc">~</span> <span class="st">"Summer"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>) <span class="sc">~</span> <span class="st">"Fall"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">multi_county =</span> <span class="fu">grepl</span>(<span class="st">","</span>, incident_county),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">is_complex =</span> <span class="fu">grepl</span>(<span class="st">"Complex"</span>, incident_name)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, let’s change some of the variables names for :</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> incident_name,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">county =</span> incident_county,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">severity =</span> incident_acres_burned,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> incident_dateonly_created,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, let’s take a look at our updated and clean data set. We are now one step closer to perform our Analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fire_data, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 30 × 9
+   name    county severity date        year month season multi_county is_complex
+   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;lgl&gt;        &lt;lgl&gt;     
+ 1 Bridge… Shasta       37 2017-10-31  2017    10 Fall   FALSE        FALSE     
+ 2 Pala F… San D…      122 2009-05-24  2009     5 Spring FALSE        FALSE     
+ 3 River … Inyo        407 2013-02-24  2013     2 Winter FALSE        FALSE     
+ 4 Fawnsk… San B…       30 2013-04-20  2013     4 Spring FALSE        FALSE     
+ 5 Gold F… Madera      274 2013-04-30  2013     4 Spring FALSE        FALSE     
+ 6 Panthe… Tehama     6896 2013-05-01  2013     5 Spring FALSE        FALSE     
+ 7 Silver… Napa         75 2013-04-30  2013     4 Spring FALSE        FALSE     
+ 8 Yellow… Sonoma      125 2013-05-01  2013     5 Spring FALSE        FALSE     
+ 9 Summit… River…     2956 2013-05-01  2013     5 Spring FALSE        FALSE     
+10 Tres P… San B…      354 2013-05-03  2013     5 Spring FALSE        FALSE     
+# ℹ 20 more rows</code></pre>
+</div>
+</div>
+<p>#Data Split</p>
+<p>Lastly, we should split the data into a training set (<code>fire_train</code>) and test set (<code>fire_test</code>). The recommended amount of data in the training set is roughly 80%, thus we shall follow that. We must apply this split to our data set to avoid selection bias since I precisely chose the variables I wanted to perform our analysis on.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(fire_data)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>train_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, <span class="at">size =</span> <span class="fu">floor</span>(<span class="fl">0.8</span><span class="sc">*</span>n))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>fire_train <span class="ot">&lt;-</span> fire_data[train_indices,]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>fire_test <span class="ot">&lt;-</span> fire_data[<span class="sc">-</span>train_indices,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<p>In this section, we will explore our variables by looking at their distribution relationship between our categorical variables and our response variable, <code>severity</code>.</p>
+<p>#Missing Data</p>
+<p>Before exploring our variables, we must address how much of the data is missing and how can we tackle this problem.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>    fire_data <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">miss_var_summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 3
+  variable     n_miss pct_miss
+  &lt;chr&gt;         &lt;int&gt;    &lt;num&gt;
+1 severity         53    1.85 
+2 county           10    0.350
+3 name              0    0    
+4 date              0    0    
+5 year              0    0    
+6 month             0    0    
+7 season            0    0    
+8 multi_county      0    0    
+9 is_complex        0    0    </code></pre>
+</div>
+</div>
+<p>Hence, we have 62 missing data points in total in our data. More precisely, 52 reports missing for amount of acres burned and 10 reports missing for which county the fire happened, which represents 1.82% and 0.35% of those variables respectively total data. Therefore, this is a good sign that our data set has barely any data missing. We could even visualize how insignificant the missingness is related to our overall data,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vis_miss</span>(fire_data, <span class="at">cluster =</span> <span class="cn">TRUE</span>, <span class="at">sort_miss =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Analysis_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Therefore, approximately 2% of the data had missing values. I opted to remove those rows. This avoids the need for potentially biased imputation of the target variable, with methods such as <em>Mean/Median/Mode</em>, <em>linear model</em>, or <em>softImpute</em>. The small proportion of missing data will not significantly impact our overall analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>    fire_data <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">miss_var_summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 9 × 3
+  variable     n_miss pct_miss
+  &lt;chr&gt;         &lt;int&gt;    &lt;num&gt;
+1 name              0        0
+2 county            0        0
+3 severity          0        0
+4 date              0        0
+5 year              0        0
+6 month             0        0
+7 season            0        0
+8 multi_county      0        0
+9 is_complex        0        0</code></pre>
+</div>
+</div>
+<p>#Exploring Variables</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fire_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     name              county             severity            date           
+ Length:2288        Length:2288        Min.   :      0   Min.   :1969-12-31  
+ Class :character   Class :character   1st Qu.:     30   1st Qu.:2017-07-31  
+ Mode  :character   Mode  :character   Median :     83   Median :2019-10-10  
+                                       Mean   :   4468   Mean   :2020-02-01  
+                                       3rd Qu.:    367   3rd Qu.:2023-08-01  
+                                       Max.   :1032648   Max.   :2025-05-02  
+                                       NA's   :47                            
+      year          month           season          multi_county   
+ Min.   :1969   Min.   : 1.000   Length:2288        Mode :logical  
+ 1st Qu.:2017   1st Qu.: 6.000   Class :character   FALSE:2245     
+ Median :2019   Median : 7.000   Mode  :character   TRUE :43       
+ Mean   :2020   Mean   : 7.181                                     
+ 3rd Qu.:2023   3rd Qu.: 8.000                                     
+ Max.   :2025   Max.   :12.000                                     
+                                                                   
+ is_complex     
+ Mode :logical  
+ FALSE:2245     
+ TRUE :43       
+                
+                
+                
+                </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> fire_train, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> overall)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>       ) <span class="sc">+</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">center =</span> <span class="fl">1.125</span>, <span class="at">binwidth =</span> <span class="fl">0.25</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fire_train <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">num_total =</span> <span class="fu">n</span>(),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(fire_train<span class="sc">$</span>severity),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(fire_train<span class="sc">$</span>severity),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">min</span>(fire_train<span class="sc">$</span>severity),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q1 =</span> <span class="fu">quantile</span>(fire_train<span class="sc">$</span>severity, <span class="fl">0.25</span>),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(fire_train<span class="sc">$</span>severity),</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q3 =</span> <span class="fu">quantile</span>(fire_train<span class="sc">$</span>severity, <span class="fl">0.75</span>),</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">max</span>(fire_train<span class="sc">$</span>severity)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fire_data, <span class="fu">aes</span>(<span class="at">x =</span> severity)) <span class="sc">+</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">fill =</span> <span class="st">"darkred"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Log-Scale Distribution of Fire Severity"</span>, <span class="at">x =</span> <span class="st">"Log(Acres Burned)"</span>, <span class="at">y =</span> <span class="st">"Number of Fires"</span>) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="modeling" class="level2">
+<h2 class="anchored" data-anchor-id="modeling">Modeling</h2>
+</section>
+<section id="insights" class="level2">
+<h2 class="anchored" data-anchor-id="insights">Insights</h2>
+</section>
+<section id="limitations-and-future-work" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-and-future-work">Limitations and Future Work</h2>
+</section>
+<section id="reflection" class="level2">
+<h2 class="anchored" data-anchor-id="reflection">Reflection</h2>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Made with ❤️ and Quarto</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

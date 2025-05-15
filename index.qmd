@@ -1,7 +1,27 @@
 ---
-title: "Final Project Website"
+title: "Erick Doherty Claudino, B.A."
+subtitle: ""
+image: IMG_2118.JPG
+about: # https://quarto.org/docs/websites/website-about.html
+  template: jolla
+  image-width: 20em
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/eclaudino-actuary
+    - icon: linkedin
+      text: LinkedIn
+      href: https://linkedin.com/in/erick-doherty
 ---
 
-This is a Quarto website.
+I am a self-motivated and resilient student majoring in Mathematics with a concentration in Actuarial Science. I have a strong passion for the actuarial field and recognize its significance in addressing complex issues by applying mathematics, statistics, and risk management, bringing clarity to chaos. My goal is to become an actuary and make a meaningful contribution to society by protecting individuals.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+## Education
+
+Bachelor's Degree in Mathematics - Actuarial Science Concentration \| California State Univeristy, Fullerton
+
+## Experience
+
+**California Department of Insurance** \| Actuarial Intern \| June 2024 - Aug 2024
+
+**Mercury Insurance** \| Actuarial Intern \| June 2025 - Aug 2025
