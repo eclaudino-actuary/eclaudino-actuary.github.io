@@ -101,6 +101,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <meta property="og:title" content="Understanding Fire Severity in California – Home">
 <meta property="og:description" content="">
@@ -170,17 +199,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="motivation-and-context" class="level2">
 <h2 class="anchored" data-anchor-id="motivation-and-context">Motivation and Context</h2>
-<p>The unfortunate series of destructive fires in Los Angeles County earlier this January motivated me to focus my final project in analyzing fire incidents across the counties of California in the past 12 years. The data analysis includes building linear models to understand relationships between the predictor variables of a fire and its severity, measured by acres burned. Plus, answering some interesting and important inference questions:</p>
+<p>The devastating series of wildfires in Los Angeles County earlier this January inspired me to focus my final project on analyzing fire incidents across California counties over the past 12 years. This project aims to explore key relationships between predictor variables and the severity of wildfires, measured by acres burned, while also developing a predictive model to anticipate future fire impacts. In addition to model-building, I’m investigating several important inference questions that reflect real-world concerns:</p>
 <ul>
-<li><p>Does the severity of a fire depend on the season of the year?</p></li>
+<li><p>Does the severity of a wildfire depend on the season of the year?</p></li>
 <li><p>Are wildfires in California worsening over time in terms of severity?</p></li>
-<li><p>Are there locations on California where fires are more likely to happen?</p></li>
+<li><p>Are there specific counties in California where wildfires are more likely to occur?</p></li>
 </ul>
-<p>This problem is particularly interesting to me because I am majoring in Mathematics with an actuarial science concentration and plan to build my actuarial career in the Property and Casualty insurance industry. Hence, wildfires are a big factor when it comes to Homeowners Insurance and understanding more about them can help me make predictions and provide risk management strategies for my future company.</p>
+<p>By addressing these questions, I hope to better understand the patterns behind wildfire behavior—an understanding that could be crucial in shaping actuarial risk models and insurance strategies in the future.</p>
+<p>This problem is especially compelling to me because I am majoring in Mathematics with a concentration in Actuarial Science and intend to pursue the Casualty Actuarial Society (CAS) track within the Property and Casualty insurance industry. As someone preparing for a career focused on analyzing risk and uncertainty, I believe that understanding the severity of fires in California, even if only measured by acres burned, is relevant for my career. Wildfires play a significant role in shaping Homeowners Insurance, both in terms of pricing and coverage availability. By studying this issue more deeply, I hope to gain insights that will one day allow me to develop more accurate predictive models and contribute to effective risk management strategies. Understanding these patterns isn’t just academically interesting—it directly aligns with my long-term professional goals of helping insurers and communities better prepare for and respond to natural disasters.</p>
+<p><u><strong>Note</strong></u><strong>:</strong> For context, it is important to note the key difference between the severity being measured in this project and the severity in insurance rate making.</p>
+<p>In this project, we are defining severity as how destructive a fire is based on the length it impacted, disregarding other factors:</p>
+<p><span class="math display">\[
+\text{Severity} = \text{Amount of acres burned by a fire}\
+\]</span></p>
+<p>In insurance rate making, severity refers to the average cost of a claim:</p>
+<p><span class="math display">\[
+\text{Severity} = \frac{\text{Total Loss Amount}}{\text{Number of Claims}}
+\]</span></p>
+<p><u><strong>OBS</strong></u>: This clarification will definitely be helpful for actuaries and insurance professionals.</p>
 </section>
 <section id="main-objective" class="level2">
 <h2 class="anchored" data-anchor-id="main-objective">Main Objective</h2>
-<p>I believe my findings could be extremely relevant for the State of California and its residents since multiple homes and families are affected by this recurring devastating disaster. I believe tackling this problem is a perfect way to link my career interest with a way to significantly help California fire victims. The inference that will be made from my data analysis could be used as an incentive to society to create models better and better overtime.</p>
+<p>I believe the insights gained from my analysis should be only considered could be highly relevant for the State of California and its residents, as wildfires continue to threaten countless homes and families each year. Addressing this issue allows me to connect my career aspirations with a real opportunity to contribute to the well-being of those affected by this recurring and devastating disaster. The inferences drawn from my data analysis have the potential to inform better predictive models and encourage continuous improvement in wildfire risk assessment. Ultimately, I hope my work can serve as a small but meaningful step toward helping communities prepare for, mitigate, and recover from the growing threat of wildfires.</p>
 </section>
 <section id="packages" class="level2">
 <h2 class="anchored" data-anchor-id="packages">Packages</h2>
@@ -194,7 +234,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(naniar)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <table class="caption-top table">
 <thead>
@@ -248,23 +289,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>I am using the fire incident data available at the <a href="https://www.fire.ca.gov/incidents">CAL FIRE website</a>. CalFIRE (California Department of Forestry and Fire Protection) is California’s state agency responsible for fire protection in State Responsibility Areas (SRAs), which include over 31 million acres of wild lands and areas with significant natural resources. CAL FIRE also provides emergency services in cooperation with local governments and handles forest management, fire prevention, and resource protection.</p>
 <p>All of the agency’s information comes from the fire lines and must be approved by the Incident Commander in charge of managing the incident prior to release. The data then gets compiled by their staff and published in their website for the public to access. In their incidents page, there is a Current Emergency Incidents section where it shows fire related information such as evacuation orders and acres burned through Earthstar Geographics powered by <a href="http://www.esri.com/">Esri</a>,&nbsp;<a href="https://protect.genasys.com/search?z=14&amp;latlon=38.134148%2C-121.272219">Genasys</a>&nbsp;and&nbsp;<a href="https://perimeterplatform.com/">Perimeter</a>. However, since I needed the whole historical fire data set to perform my analysis , I collected the CSV file, they offered.</p>
 <p>The main reasons why they collect the fire incident data includes fastening fire responsiveness, prevention of future fires, to inform the public through statistics, and to create an incentive for more funding towards fire prevention.</p>
-<p><strong>OBS:</strong> It is important to note that the original excel file from CalFIRE contained significant amount of unnecessary raw data, and some wrong/outdated information. Therefore, this will be taken care of in our <u><strong>Data Wrangling</strong></u> section to ensure our Analysis is as precise and professional as possible.</p>
+<p><u><strong>OBS</strong></u><strong>:</strong> It is important to note that the original excel file from CalFIRE contained significant amount of unnecessary raw data, and some wrong/outdated information. Therefore, this will be taken care of in our <u><strong>Data Wrangling</strong></u> section to ensure our Analysis is as precise and professional as possible.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>original_fire <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"mapdataall.csv"</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#original historical fire data from CalFIRE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="data-limitations" class="level3">
-<h3 class="anchored" data-anchor-id="data-limitations">Data Limitations</h3>
+</section>
+<section id="data-limitations" class="level1">
+<h1>Data Limitations</h1>
 <p>CalFIRE makes it clear in their disclaimer that the data provided is intended for general reference rather than detailed scientific or emergency analysis. Therefore, important limitations must be considered when interpreting my model’s conclusions.</p>
 <p><strong>1) Bias in data collection:</strong> One possible source of bias is the fact that CalFIRE reportedly shared that a significant amount of small fires could go under reported, even more so if the incident burns less than 10 acres. Furthermore, another source of bias can be explained by how I performed variable selection during the modeling process. Since I got the data before specifing my linear model, I must account for selection bias.</p>
 <p><strong>2) Variables Mismatches:</strong> The outcome variable in our linear model, acres_burned is the only variable being used in my analysis to define the severity of the fire incidents. However, we are excluding so many crucial variables that influence a fire severity in the real-world such as structures destroyed, rural/urban differences, fire escalation, lack of firefighters, area accessibility, injuries, fatalities, more expensive/cheaper neighborhoods, total loss, and more. Plus, the variables incident_season and incident_county are very broad. I am not accounting for local weather, vegetation, source of fire, and human factors that could influence a fire behavior in the real-world.</p>
 <p><strong>3) Model Transferrability:</strong> My model is only accounting for fires in California in the past 12 years. Hence, the model might be inappropriate for other regions that present different weather, air humidity, terrain, biodiversity, population demographics, government funding, and more.</p>
-</section>
-</section>
 <section id="data-wrangling" class="level2">
 <h2 class="anchored" data-anchor-id="data-wrangling">Data Wrangling</h2>
-<p>#Data Clean Up</p>
+</section>
+</section>
+<section id="data-clean-up" class="level1">
+<h1>Data Clean Up</h1>
 <p>First of all, I must make sure this data set contains only historical fire data. CalFIRE predominantly oversee fire incidents but not exclusively. After some digging in <code>incident_type</code>, there were indeed two incidents reported as flood and one as earthquake. Hence, let’s remove them from our original data set and change the updated data set name for good practice.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> original_fire <span class="sc">%&gt;%</span></span>
@@ -273,15 +316,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We should be worried about the observations that have missing data for the <code>incident_type</code> variable because what if they are not a fire incident. Hence, I made sure to check the <code>incident_name</code> manually to ensure all of the observations in our data set were only fire incidents.</p>
 <p>Furthermore, since acres burned will be our response variable we must make sure we are only looking at fires that were already contained so that we know exactly how many acres were affected. Hence, the chunk below removes all the fire incidents that were still active as of May 2025. In this case, there were only three.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> original_fire <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>is_active <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Y"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>#Variable Selection</p>
-<p>Now, let’s take a look at the first 30 rows in the original data set provided by CalFIRE and understand the variables we are working with:</p>
+<p>Moreover, since we are only looking at fire incidents back to twelve years ago, starting from 2013, I must apply a filter to remove the reported fires before that year. Also, I should apply a filter to remove the fires of 2025 later on when attempting to make inference about the fire severity trend over the years, because the graph might be misleading since we are in May and hence the count of fires will be significantly smaller than other years. For simplicity, I will apply those filters later on when I create the variable <code>year</code>. The reason why we picked 2013 as the starting year is because it is when the reporting data became regular and consistent. Before, there were only two fires incidents from 1969 and one from 2009.</p>
+<p>Lastly, I must make sure the fire location, <code>incident_county</code>, is only considering California counties. After manually analyzing that variable, I did find that some reported fires are from Mexico and State of Nevada. This might have happened since the country and state are close to the border. Thus, we shall remove them manually:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(original_fire, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>incident_county <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Mexico, San Diego"</span>, <span class="st">"Nevada"</span>, <span class="st">"State of Nevada"</span>, <span class="st">"Nevada, Placer"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="variable-selection" class="level1">
+<h1>Variable Selection</h1>
+<p>Now, let’s take a look at the variables in the original data set provided by CalFIRE and understand the variables we are working with:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(original_fire, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 30 × 23
+<pre><code># A tibble: 20 × 23
    incident_name  incident_is_final incident_date_last_u…¹ incident_date_created
    &lt;chr&gt;          &lt;chr&gt;             &lt;dttm&gt;                 &lt;dttm&gt;               
  1 Bridge Fire    Y                 2018-01-09 13:46:00    2017-10-31 11:22:00  
@@ -294,13 +345,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  8 Yellow Fire    Y                 2013-05-03 06:15:00    2013-05-01 02:01:00  
  9 Summit Fire    Y                 2022-10-24 11:40:42    2013-05-01 12:38:00  
 10 Tres Pinos Fi… Y                 2013-05-03 18:45:00    2013-05-03 11:42:00  
-# ℹ 20 more rows
+11 306 Fire       Y                 2013-05-05 18:00:00    2013-05-01 19:00:00  
+12 Lytle Fire     Y                 2013-05-15 08:15:00    2013-05-13 13:30:00  
+13 Gorgonio Fire  Y                 2022-10-24 11:40:58    2013-05-04 11:43:00  
+14 Grand Fire     Y                 2013-05-21 19:45:00    2013-05-15 12:50:00  
+15 54 Fire        Y                 2013-05-17 08:30:00    2013-05-16 13:48:00  
+16 Lake Fire      Y                 2013-05-18 19:00:00    2013-05-17 13:23:00  
+17 Lilly 2 Fire   Y                 2013-05-20 19:10:00    2013-05-19 15:07:00  
+18 Cottontail Fi… Y                 2013-05-20 19:10:00    2013-05-20 15:45:00  
+19 Cherry Fire    Y                 2013-05-20 18:50:00    2013-05-20 13:47:00  
+20 Water Fire     Y                 2013-05-21 19:30:00    2013-05-21 14:16:00  
 # ℹ abbreviated name: ¹​incident_date_last_update
 # ℹ 19 more variables: incident_administrative_unit &lt;chr&gt;,
 #   incident_administrative_unit_url &lt;lgl&gt;, incident_county &lt;chr&gt;,
 #   incident_location &lt;chr&gt;, incident_acres_burned &lt;dbl&gt;,
 #   incident_containment &lt;dbl&gt;, incident_control &lt;chr&gt;,
-#   incident_cooperating_agencies &lt;chr&gt;, incident_longitude &lt;dbl&gt;, …</code></pre>
+#   incident_cooperating_agencies &lt;chr&gt;, incident_longitude &lt;dbl&gt;,
+#   incident_latitude &lt;dbl&gt;, incident_type &lt;chr&gt;, incident_id &lt;chr&gt;, …</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(original_fire)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "incident_name"                    "incident_is_final"               
+ [3] "incident_date_last_update"        "incident_date_created"           
+ [5] "incident_administrative_unit"     "incident_administrative_unit_url"
+ [7] "incident_county"                  "incident_location"               
+ [9] "incident_acres_burned"            "incident_containment"            
+[11] "incident_control"                 "incident_cooperating_agencies"   
+[13] "incident_longitude"               "incident_latitude"               
+[15] "incident_type"                    "incident_id"                     
+[17] "incident_url"                     "incident_date_extinguished"      
+[19] "incident_dateonly_extinguished"   "incident_dateonly_created"       
+[21] "is_active"                        "calfire_incident"                
+[23] "notification_desired"            </code></pre>
 </div>
 </div>
 <p>We can see there are some unnecessary variables that can be removed from this data set because they will be irrelevant to our analysis. More specifically:</p>
@@ -316,12 +392,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><code>incident_date_created</code> - Repetitive, we already have <code>incident_dateonly_created</code>.</p></li>
 <li><p><code>incident_administrative_unit</code> , <code>incident_administrative_unit_url</code>, <code>incident_control</code> , <code>incident_cooperating_agencies</code> , <code>incident_id</code> , <code>incident_url</code>, <code>calfire_incident</code> , <code>notification_desired</code> - Irrelevant for our analysis.</p></li>
 </ul>
-<p>Let’s remove those variables now,</p>
+<p>Let’s create a new data set with those variables removed:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(incident_is_final, incident_date_last_update, incident_location, incident_containment, incident_longitude, incident_latitude, incident_type, incident_date_extinguished, incident_dateonly_extinguished, incident_administrative_unit, incident_administrative_unit_url, incident_control, incident_cooperating_agencies, incident_id , incident_url, calfire_incident, notification_desired, incident_date_created, is_active))</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># To remove all the variables we deemed unecessary.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(incident_is_final, incident_date_last_update, incident_location, incident_containment, incident_longitude, incident_latitude, incident_type, incident_date_extinguished, incident_dateonly_extinguished, incident_administrative_unit, incident_administrative_unit_url, incident_control, incident_cooperating_agencies, incident_id , incident_url, calfire_incident, notification_desired, incident_date_created, is_active))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># To remove all the variables we deemed unecessary.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now that we have removed those unnecessary variables. Let’s extract other interesting variables from the given ones and perhaps change their names for our data set to look more professional. For example, from the date the fire was created we can extract the year, the month, and the season that fire originated. Hence, here are the variables we are generating from the given data:</p>
 <ul>
@@ -332,78 +408,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><code>is_complex</code> - a fire is called a “complex”&nbsp;when two or more fires burn in the same general area and are managed under a single incident command or unified command.</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(incident_dateonly_created),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> <span class="fu">month</span>(incident_dateonly_created),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">season =</span> <span class="fu">case_when</span>(</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">1</span>, <span class="dv">2</span>) <span class="sc">~</span> <span class="st">"Winter"</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)  <span class="sc">~</span> <span class="st">"Spring"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>)  <span class="sc">~</span> <span class="st">"Summer"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>) <span class="sc">~</span> <span class="st">"Fall"</span>,</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">multi_county =</span> <span class="fu">grepl</span>(<span class="st">","</span>, incident_county),</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">is_complex =</span> <span class="fu">grepl</span>(<span class="st">"Complex"</span>, incident_name)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(incident_dateonly_created),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">month =</span> <span class="fu">factor</span>(<span class="fu">month</span>(incident_dateonly_created),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Jan"</span>, <span class="st">"Feb"</span>, <span class="st">"Mar"</span>, <span class="st">"Apr"</span>, <span class="st">"May"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"Jun"</span>,<span class="st">"Jul"</span>, <span class="st">"Aug"</span>, <span class="st">"Sep"</span>, <span class="st">"Oct"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"Nov"</span>, <span class="st">"Dec"</span>)),</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">season =</span> <span class="fu">case_when</span>(</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Dec"</span>, <span class="st">"Jan"</span>, <span class="st">"Feb"</span>) <span class="sc">~</span> <span class="st">"Winter"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Mar"</span>, <span class="st">"Apr"</span>, <span class="st">"May"</span>)  <span class="sc">~</span> <span class="st">"Spring"</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Jun"</span>, <span class="st">"Jul"</span>, <span class="st">"Aug"</span>)  <span class="sc">~</span> <span class="st">"Summer"</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>      month <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Sep"</span>, <span class="st">"Oct"</span>, <span class="st">"Nov"</span>) <span class="sc">~</span> <span class="st">"Fall"</span>,</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">multi_county =</span> <span class="fu">grepl</span>(<span class="st">","</span>, incident_county),</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">is_complex =</span> <span class="fu">grepl</span>(<span class="st">"Complex"</span>, incident_name)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now, let’s change some of the variables names for :</p>
+<p>Now we can easily apply the filter to <code>year</code> and only consider fires from 2013 and on by</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> incident_name,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">county =</span> incident_county,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">severity =</span> incident_acres_burned,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> incident_dateonly_created,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">2013</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, let’s change some of the variables names for aesthetic:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> incident_name,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">county =</span> incident_county,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">severity =</span> incident_acres_burned,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">date =</span> incident_dateonly_created,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Finally, let’s take a look at our updated and clean data set. We are now one step closer to perform our Analysis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fire_data, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fire_data, <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 30 × 9
+<pre><code># A tibble: 20 × 9
    name    county severity date        year month season multi_county is_complex
-   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;lgl&gt;        &lt;lgl&gt;     
- 1 Bridge… Shasta       37 2017-10-31  2017    10 Fall   FALSE        FALSE     
- 2 Pala F… San D…      122 2009-05-24  2009     5 Spring FALSE        FALSE     
- 3 River … Inyo        407 2013-02-24  2013     2 Winter FALSE        FALSE     
- 4 Fawnsk… San B…       30 2013-04-20  2013     4 Spring FALSE        FALSE     
- 5 Gold F… Madera      274 2013-04-30  2013     4 Spring FALSE        FALSE     
- 6 Panthe… Tehama     6896 2013-05-01  2013     5 Spring FALSE        FALSE     
- 7 Silver… Napa         75 2013-04-30  2013     4 Spring FALSE        FALSE     
- 8 Yellow… Sonoma      125 2013-05-01  2013     5 Spring FALSE        FALSE     
- 9 Summit… River…     2956 2013-05-01  2013     5 Spring FALSE        FALSE     
-10 Tres P… San B…      354 2013-05-03  2013     5 Spring FALSE        FALSE     
-# ℹ 20 more rows</code></pre>
+   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;date&gt;     &lt;dbl&gt; &lt;fct&gt; &lt;chr&gt;  &lt;lgl&gt;        &lt;lgl&gt;     
+ 1 Bridge… Shasta       37 2017-10-31  2017 Oct   Fall   FALSE        FALSE     
+ 2 River … Inyo        407 2013-02-24  2013 Feb   Winter FALSE        FALSE     
+ 3 Fawnsk… San B…       30 2013-04-20  2013 Apr   Spring FALSE        FALSE     
+ 4 Gold F… Madera      274 2013-04-30  2013 Apr   Spring FALSE        FALSE     
+ 5 Panthe… Tehama     6896 2013-05-01  2013 May   Spring FALSE        FALSE     
+ 6 Silver… Napa         75 2013-04-30  2013 Apr   Spring FALSE        FALSE     
+ 7 Yellow… Sonoma      125 2013-05-01  2013 May   Spring FALSE        FALSE     
+ 8 Summit… River…     2956 2013-05-01  2013 May   Spring FALSE        FALSE     
+ 9 Tres P… San B…      354 2013-05-03  2013 May   Spring FALSE        FALSE     
+10 306 Fi… Glenn       217 2013-05-01  2013 May   Spring FALSE        FALSE     
+11 Lytle … San B…       75 2013-05-13  2013 May   Spring FALSE        FALSE     
+12 Gorgon… River…      650 2013-05-04  2013 May   Spring FALSE        FALSE     
+13 Grand … Kern,…     4346 2013-05-15  2013 May   Spring TRUE         FALSE     
+14 54 Fire River…       40 2013-05-16  2013 May   Spring FALSE        FALSE     
+15 Lake F… Los A…      712 2013-05-17  2013 May   Spring FALSE        FALSE     
+16 Lilly … Madera       91 2013-05-19  2013 May   Spring FALSE        FALSE     
+17 Cotton… San L…       35 2013-05-20  2013 May   Spring FALSE        FALSE     
+18 Cherry… River…       25 2013-05-20  2013 May   Spring FALSE        FALSE     
+19 Water … River…       90 2013-05-21  2013 May   Spring FALSE        FALSE     
+20 Shelto… San J…      303 2013-05-30  2013 May   Spring FALSE        FALSE     </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(fire_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "name"         "county"       "severity"     "date"         "year"        
+[6] "month"        "season"       "multi_county" "is_complex"  </code></pre>
 </div>
 </div>
-<p>#Data Split</p>
-<p>Lastly, we should split the data into a training set (<code>fire_train</code>) and test set (<code>fire_test</code>). The recommended amount of data in the training set is roughly 80%, thus we shall follow that. We must apply this split to our data set to avoid selection bias since I precisely chose the variables I wanted to perform our analysis on.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(fire_data)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>train_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, <span class="at">size =</span> <span class="fu">floor</span>(<span class="fl">0.8</span><span class="sc">*</span>n))</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>fire_train <span class="ot">&lt;-</span> fire_data[train_indices,]</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>fire_test <span class="ot">&lt;-</span> fire_data[<span class="sc">-</span>train_indices,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
 <section id="exploratory-data-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
-<p>In this section, we will explore our variables by looking at their distribution relationship between our categorical variables and our response variable, <code>severity</code>.</p>
-<p>#Missing Data</p>
+<p>In this section, we will explore our variables by looking at their distributions and relationship between our categorical variables and our response variable, <code>severity</code>.</p>
+</section>
+</section>
+<section id="missing-data" class="level1">
+<h1>Missing Data</h1>
 <p>Before exploring our variables, we must address how much of the data is missing and how can we tackle this problem.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>    fire_data <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">miss_var_summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>    fire_data <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">miss_var_summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 9 × 3
   variable     n_miss pct_miss
   &lt;chr&gt;         &lt;int&gt;    &lt;num&gt;
-1 severity         53    1.85 
-2 county           10    0.350
+1 severity         51    1.80 
+2 county           10    0.354
 3 name              0    0    
 4 date              0    0    
 5 year              0    0    
@@ -413,25 +503,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 9 is_complex        0    0    </code></pre>
 </div>
 </div>
-<p>Hence, we have 62 missing data points in total in our data. More precisely, 52 reports missing for amount of acres burned and 10 reports missing for which county the fire happened, which represents 1.82% and 0.35% of those variables respectively total data. Therefore, this is a good sign that our data set has barely any data missing. We could even visualize how insignificant the missingness is related to our overall data,</p>
+<p>Hence, we have 61 missing data points in total in our data. More precisely, 51 reports missing for <code>severity</code> (acres burned) and 10 reports missing for <code>county</code> (fire incident county), which represents about 1.80% and 0.35% of those variables, respectively, total reported data. Therefore, this is a good sign that our data set has barely any data missing. We could even visualize how insignificant the missingness is related to our overall data,</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vis_miss</span>(fire_data, <span class="at">cluster =</span> <span class="cn">TRUE</span>, <span class="at">sort_miss =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vis_miss</span>(fire_data, <span class="at">cluster =</span> <span class="cn">TRUE</span>, <span class="at">sort_miss =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Analysis_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Analysis_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gg_miss_upset</span>(fire_data,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">nsets =</span> <span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Analysis_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Therefore, approximately 2% of the data had missing values. I opted to remove those rows. This avoids the need for potentially biased imputation of the target variable, with methods such as <em>Mean/Median/Mode</em>, <em>linear model</em>, or <em>softImpute</em>. The small proportion of missing data will not significantly impact our overall analysis.</p>
+<p>Moreover, we it is plausible to ignore the missing data because the “upset” plot indicated that the variables do not tend to be missing together. Hence, this strengthen, but does not prove, our assumption that the data can be treated as Missing Completely at Random (MCAR).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span> </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fire_data <span class="ot">&lt;-</span> fire_data <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>    fire_data <span class="sc">|&gt;</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">miss_var_summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>    fire_data <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">miss_var_summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 9 × 3
   variable     n_miss pct_miss
@@ -447,74 +547,155 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 9 is_complex        0        0</code></pre>
 </div>
 </div>
-<p>#Exploring Variables</p>
+<p>Hence, we now have a clean data set with 2,765 fire incidents across California with no missing data.</p>
+</section>
+<section id="data-split" class="level1">
+<h1>Data Split</h1>
+<p>Furthermore, we should split the data into a training set (<code>fire_train</code>) and test set (<code>fire_test</code>). The recommended amount of data in the training set is roughly 80% for a random split, thus we shall follow that. We must apply this split for several reasons, more importantly, to prevent over fitting and to evaluate/compare models accurately. Our test set is extremely important because it acts like “new” data, helping us check if the trained model generalizes. Also, since we are planning on making inference claims, we must make sure our model’s conclusions are not specific to the training set only.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fire_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     name              county             severity            date           
- Length:2288        Length:2288        Min.   :      0   Min.   :1969-12-31  
- Class :character   Class :character   1st Qu.:     30   1st Qu.:2017-07-31  
- Mode  :character   Mode  :character   Median :     83   Median :2019-10-10  
-                                       Mean   :   4468   Mean   :2020-02-01  
-                                       3rd Qu.:    367   3rd Qu.:2023-08-01  
-                                       Max.   :1032648   Max.   :2025-05-02  
-                                       NA's   :47                            
-      year          month           season          multi_county   
- Min.   :1969   Min.   : 1.000   Length:2288        Mode :logical  
- 1st Qu.:2017   1st Qu.: 6.000   Class :character   FALSE:2245     
- Median :2019   Median : 7.000   Mode  :character   TRUE :43       
- Mean   :2020   Mean   : 7.181                                     
- 3rd Qu.:2023   3rd Qu.: 8.000                                     
- Max.   :2025   Max.   :12.000                                     
-                                                                   
- is_complex     
- Mode :logical  
- FALSE:2245     
- TRUE :43       
-                
-                
-                
-                </code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> fire_train, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> overall)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>       ) <span class="sc">+</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">center =</span> <span class="fl">1.125</span>, <span class="at">binwidth =</span> <span class="fl">0.25</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fire_train <span class="sc">|&gt;</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">num_total =</span> <span class="fu">n</span>(),</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(fire_train<span class="sc">$</span>severity),</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(fire_train<span class="sc">$</span>severity),</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">min</span>(fire_train<span class="sc">$</span>severity),</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q1 =</span> <span class="fu">quantile</span>(fire_train<span class="sc">$</span>severity, <span class="fl">0.25</span>),</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(fire_train<span class="sc">$</span>severity),</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q3 =</span> <span class="fu">quantile</span>(fire_train<span class="sc">$</span>severity, <span class="fl">0.75</span>),</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">max</span>(fire_train<span class="sc">$</span>severity)</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fire_data, <span class="fu">aes</span>(<span class="at">x =</span> severity)) <span class="sc">+</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">50</span>, <span class="at">fill =</span> <span class="st">"darkred"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Log-Scale Distribution of Fire Severity"</span>, <span class="at">x =</span> <span class="st">"Log(Acres Burned)"</span>, <span class="at">y =</span> <span class="st">"Number of Fires"</span>) <span class="sc">+</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">100</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(fire_data)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>train_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(n, <span class="at">size =</span> <span class="fu">floor</span>(<span class="fl">0.8</span><span class="sc">*</span>n))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>fire_train <span class="ot">&lt;-</span> fire_data[train_indices,]</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>fire_test <span class="ot">&lt;-</span> fire_data[<span class="sc">-</span>train_indices,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<section id="exploring-variables" class="level1">
+<h1>Exploring Variables</h1>
+<p>Let’s take a look at our response variable:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>fire_train <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">num_total =</span> <span class="fu">n</span>(),</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">mean</span>(severity),</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(severity),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">min</span>(severity),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q1 =</span> <span class="fu">quantile</span>(severity, <span class="fl">0.25</span>),</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">median =</span> <span class="fu">median</span>(severity),</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Q3 =</span> <span class="fu">quantile</span>(severity, <span class="fl">0.75</span>),</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">max</span>(severity)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 8
+  num_total  mean     sd   min    Q1 median    Q3     max
+      &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1      2212 4320. 37221.     0    30     83   338 1032648</code></pre>
+</div>
+</div>
+<p>Hence, this tell us that from the 2,236 fires observed in our training set, 50% of them burned between 30 and 357 acres, with 25% of fires burning less than 30 acres and 25% of fires burning more than 357 acres. Notice how the average (mean) of acres burned is around 4,556 acres which is much higher than the median of 85 acres. This implies that half of the fires burn 85 acres or less, however there are a few massive fires (outliers) that are significantly shifting the average. Plus, the standard deviation is extremely high, around 38,000 acres. This suggests a very strong right skewness for the distribution of <code>severity</code> . Furthermore, notice how we have observations of fires that burned 0 acres and a fire that was able to reach the incredible 1,032,648 acres mark. This extreme difference between fire severity explain the variability in the data, together with he standard deviation. In fact, in other to show the plot of <code>severity</code> we need to apply a log scale to compress those extreme values and allow us to interpret the full distribution of <code>severity</code> .</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fire_train, <span class="fu">aes</span>(<span class="at">x =</span> severity)) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">70</span>, <span class="at">fill =</span> <span class="st">"tomato"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Fire Severity (Log Scale)"</span>, <span class="at">x =</span> <span class="st">"Severity"</span>, <span class="at">y =</span> <span class="st">"Count of Fires"</span>) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As predicted, <code>severity</code> has a clear right-skewed distribution. Here is how to interpret the Logarithmic Scale:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Notation</th>
+<th>Acres Burned</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1e+01</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td>1e+02</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<td>1e+03</td>
+<td>1,000</td>
+</tr>
+<tr class="even">
+<td>1e+04</td>
+<td>10,000</td>
+</tr>
+<tr class="odd">
+<td>1e+05</td>
+<td>100,000</td>
+</tr>
+<tr class="even">
+<td>1e+06</td>
+<td>1,000,000</td>
+</tr>
+</tbody>
+</table>
+<p>Now, let’s compare the <code>severity</code> of the fires by <code>season</code> of the year:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fire_train, <span class="fu">aes</span>(<span class="at">x =</span> season, <span class="at">y =</span> severity)) <span class="sc">+</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"tomato"</span>) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Severity of Fires by Season (Log Scale)"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Season"</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Severity"</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Analysis_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Hence, we can see that the median fire severity appears consistent across the seasons, with about half of the fires in each season burned around a little below 100 acres. However, Fall and Summer demonstrate to have the most outliers (extreme fire events) with fire severity well above 10,000 acres and even reaching up to over 1,000,000 acres, in Summer. This strongly suggests that while the typical size of fires in our training set do not vary much across seasons, the most severe fires tend to happen during Summer and Fall.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fire_train <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group_by</span>(season) <span class="sc">|&gt;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summarize</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="at">num_total =</span> <span class="fu">n</span>(),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="at">mean =</span> <span class="fu">mean</span>(severity),</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="at">sd =</span> <span class="fu">sd</span>(severity),</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="at">min =</span> <span class="fu">min</span>(severity),</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="at">Q1 =</span> <span class="fu">quantile</span>(severity, <span class="fl">0.25</span>),</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="at">median =</span> <span class="fu">median</span>(severity),</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="at">Q3 =</span> <span class="fu">quantile</span>(severity, <span class="fl">0.75</span>),</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="at">max =</span> <span class="fu">max</span>(severity)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 9
+  season num_total  mean     sd   min    Q1 median    Q3     max
+  &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1 Fall         477 2751. 11919.     0  30       80  376   153336
+2 Spring       266  521.  2129.     0  22.2     70  201.   30274
+3 Summer      1400 5529. 45597.     0  33       86  352. 1032648
+4 Winter        69 5269. 33985.     0  22       50  333   281893</code></pre>
+</div>
+</div>
+<p>More precisely, we can also notice how many more fires happened in California during Summer compared to the other seasons, representing almost 64% of the amount of fires in our training set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fire_train, year <span class="sc">&lt;</span> <span class="dv">2025</span>, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> severity)) <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>() <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Fire Severity Over Time"</span>, <span class="at">y =</span> <span class="st">"Acres Burned (Log Scale)"</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>       )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Our choice of alpha here, “<code>alpha = 0.3</code>” is to reduce the opacity of the data points and make them more readable.</p>
+</section>
+<section id="extreme-fires" class="level1">
+<h1>Extreme Fires</h1>
+<p>Although, let’s analyze how much does <code>multi_county</code> and <code>is_complex</code> variables are affecting our results. Hence, let’s analyze if the extreme fires, the ones that affect multiple counties and that become complex are skewing our results. It’s plausible to assume they might skew our data since it would make sense that those extreme fires might have big severity, most likely burn more acres than others. Thus, let’s explore further:</p>
 <section id="modeling" class="level2">
 <h2 class="anchored" data-anchor-id="modeling">Modeling</h2>
 </section>
 <section id="insights" class="level2">
 <h2 class="anchored" data-anchor-id="insights">Insights</h2>
 </section>
-<section id="limitations-and-future-work" class="level2">
-<h2 class="anchored" data-anchor-id="limitations-and-future-work">Limitations and Future Work</h2>
 </section>
-<section id="reflection" class="level2">
-<h2 class="anchored" data-anchor-id="reflection">Reflection</h2>
+<section id="limitations-and-future-work" class="level1">
+<h1>Limitations and Future Work</h1>
+</section>
+<section id="reflection" class="level1">
+<h1>Reflection</h1>
 
 
 </section>

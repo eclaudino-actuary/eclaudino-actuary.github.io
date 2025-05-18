@@ -25,17 +25,21 @@ By addressing these questions, I hope to better understand the patterns behind w
 
 This problem is especially compelling to me because I am majoring in Mathematics with a concentration in Actuarial Science and intend to pursue the Casualty Actuarial Society (CAS) track within the Property and Casualty insurance industry. As someone preparing for a career focused on analyzing risk and uncertainty, I believe that understanding the severity of fires in California, even if only measured by acres burned, is relevant for my career. Wildfires play a significant role in shaping Homeowners Insurance, both in terms of pricing and coverage availability. By studying this issue more deeply, I hope to gain insights that will one day allow me to develop more accurate predictive models and contribute to effective risk management strategies. Understanding these patterns isn’t just academically interesting—it directly aligns with my long-term professional goals of helping insurers and communities better prepare for and respond to natural disasters.
 
-**Note:** For context, it is important to note the key difference between the severity being measured in this project and the severity in insurance rate making.
+[**Note**]{.underline}**:** For context, it is important to note the key difference between the severity being measured in this project and the severity in insurance rate making.
 
 In this project, we are defining severity as how destructive a fire is based on the length it impacted, disregarding other factors:
 
-$\text{Severity} = \text{Amount of acres burned by a fire}$
+$$
+\text{Severity} = \text{Amount of acres burned by a fire}\
+$$
 
 In insurance rate making, severity refers to the average cost of a claim:
 
-$\text{Severity} = \frac{\text{Total Loss Amount}}{\text{Number of Claims}}$
+$$
+\text{Severity} = \frac{\text{Total Loss Amount}}{\text{Number of Claims}}
+$$
 
-This clarification will be helpful for actuaries and insurance professionals.
+[**OBS**]{.underline}: This clarification will definitely be helpful for actuaries and insurance professionals.
 
 ## Main Objective
 
@@ -81,7 +85,7 @@ All of the agency's information comes from the fire lines and must be approved b
 
 The main reasons why they collect the fire incident data includes fastening fire responsiveness, prevention of future fires, to inform the public through statistics, and to create an incentive for more funding towards fire prevention.
 
-**OBS:** It is important to note that the original excel file from CalFIRE contained significant amount of unnecessary raw data, and some wrong/outdated information. Therefore, this will be taken care of in our [**Data Wrangling**]{.underline} section to ensure our Analysis is as precise and professional as possible.
+[**OBS**]{.underline}**:** It is important to note that the original excel file from CalFIRE contained significant amount of unnecessary raw data, and some wrong/outdated information. Therefore, this will be taken care of in our [**Data Wrangling**]{.underline} section to ensure our Analysis is as precise and professional as possible.
 
 ```{r}
 #| label: import data
@@ -93,7 +97,7 @@ original_fire <- readr::read_csv(here::here("mapdataall.csv"))
 #original historical fire data from CalFIRE
 ```
 
-\# Data Limitations
+### Data Limitations
 
 CalFIRE makes it clear in their disclaimer that the data provided is intended for general reference rather than detailed scientific or emergency analysis. Therefore, important limitations must be considered when interpreting my model’s conclusions.
 
@@ -105,7 +109,7 @@ CalFIRE makes it clear in their disclaimer that the data provided is intended fo
 
 ## Data Wrangling
 
-\# Data Clean Up
+### Data Clean Up
 
 First of all, I must make sure this data set contains only historical fire data. CalFIRE predominantly oversee fire incidents but not exclusively. After some digging in `incident_type`, there were indeed two incidents reported as flood and one as earthquake. Hence, let's remove them from our original data set and change the updated data set name for good practice.
 
@@ -132,12 +136,12 @@ fire_data <- fire_data %>%
   filter(!incident_county %in% c("Mexico, San Diego", "Nevada", "State of Nevada", "Nevada, Placer"))
 ```
 
-\# Variable Selection
+### Variable Selection
 
 Now, let's take a look at the variables in the original data set provided by CalFIRE and understand the variables we are working with:
 
 ```{r}
-head(original_fire, 20)
+head(original_fire, 10)
 colnames(original_fire)
 ```
 
@@ -172,15 +176,13 @@ fire_data <- fire_data %>%
 # To remove all the variables we deemed unecessary.
 ```
 
-Now that we have removed those unnecessary variables. Let's extract other interesting variables from the given ones and perhaps change their names for our data set to look more professional. For example, from the date the fire was created we can extract the year, the month, and the season that fire originated. Hence, here are the variables we are generating from the given data:
+Now that we have removed those unnecessary variables. Let's extract other interesting variables from the given ones and perhaps change their names for our data set to look more professional. For example, from the date the fire was created we can extract the year, the month, and the season that fire originated. Hence, here are the variables we are creating from the given data:
 
 -   `year` - what year the fire originated.
 
 -   `month` - what month the fire originated in numeric form.
 
 -   `season` - what was the season when the fire originated.
-
--   `multi_county` - whether the fire has affected more than one county.
 
 -   `is_complex` - a fire is called a "complex" when two or more fires burn in the same general area and are managed under a single incident command or unified command.
 
@@ -200,13 +202,12 @@ fire_data <- fire_data %>%
       month %in% c("Sep", "Oct", "Nov") ~ "Fall",
       TRUE ~ NA_character_
     ),
-    multi_county = grepl(",", incident_county),
     
     is_complex = grepl("Complex", incident_name)
   )
 ```
 
-Now we can easily apply the filter to `year` and only consider fires from 2013 and on by
+Now we can easily apply the filter to `year` and only consider fires from 2013 to 2024.
 
 ```{r}
 fire_data <- fire_data %>%
@@ -228,7 +229,7 @@ fire_data <- fire_data %>%
 Finally, let's take a look at our updated and clean data set. We are now one step closer to perform our Analysis.
 
 ```{r}
-head(fire_data, 20)
+head(fire_data, 10)
 colnames(fire_data)
 ```
 
@@ -236,7 +237,7 @@ colnames(fire_data)
 
 In this section, we will explore our variables by looking at their distributions and relationship between our categorical variables and our response variable, `severity`.
 
-\# Missing Data
+### Missing Data
 
 Before exploring our variables, we must address how much of the data is missing and how can we tackle this problem.
 
@@ -277,9 +278,9 @@ fire_data <- fire_data %>%
       miss_var_summary()
 ```
 
-Hence, we now have a clean data set with 2,765 fire incidents across California with no missing data.
+Hence, we now have a clean data set with 2,766 fire incidents across California with no missing data.
 
-\# Data Split
+### Data Split
 
 Furthermore, we should split the data into a training set (`fire_train`) and test set (`fire_test`). The recommended amount of data in the training set is roughly 80% for a random split, thus we shall follow that. We must apply this split for several reasons, more importantly, to prevent over fitting and to evaluate/compare models accurately. Our test set is extremely important because it acts like "new" data, helping us check if the trained model generalizes. Also, since we are planning on making inference claims, we must make sure our model's conclusions are not specific to the training set only.
 
@@ -287,7 +288,7 @@ Furthermore, we should split the data into a training set (`fire_train`) and tes
 #| warning: false
 #| message: false
 
-set.seed(100)
+set.seed(437)
 
 n <- nrow(fire_data)
 train_indices <- sample(n, size = floor(0.8*n))
@@ -297,7 +298,7 @@ fire_test <- fire_data[-train_indices,]
 
 ```
 
-\# Exploring Variables
+### Exploring Variables
 
 Let's take a look at our response variable:
 
@@ -318,20 +319,22 @@ fire_train |>
     )
 ```
 
-Hence, this tell us that from the 2,236 fires observed in our training set, 50% of them burned between 30 and 357 acres, with 25% of fires burning less than 30 acres and 25% of fires burning more than 357 acres. Notice how the average (mean) of acres burned is around 4,556 acres which is much higher than the median of 85 acres. This implies that half of the fires burn 85 acres or less, however there are a few massive fires (outliers) that are significantly shifting the average. Plus, the standard deviation is extremely high, around 38,000 acres. This suggests a very strong right skewness for the distribution of `severity` . Furthermore, notice how we have observations of fires that burned 0 acres and a fire that was able to reach the incredible 1,032,648 acres mark. This extreme difference between fire severity explain the variability in the data, together with he standard deviation. In fact, in other to show the plot of `severity` we need to apply a log scale to compress those extreme values and allow us to interpret the full distribution of `severity` .
+Hence, this tell us that from the 2,212 fires observed in our training set, 50% of them burned between 30 and 338 acres, with 25% of fires burning less than 30 acres and 25% of fires burning more than 338 acres. Notice how the average (mean) of acres burned is around 4,320 acres which is much higher than the median of 83 acres. This implies that half of the fires burn 85 acres or less, however there are a few massive fires (outliers) that are significantly shifting the average. Plus, the standard deviation is extremely high, around 37,221 acres. This suggests a very strong right skewness for the distribution of `severity` .
+
+Furthermore, notice how we have observations of fires that burned 0 acres and a fire that was able to reach the incredible 1,032,648 acres mark. This extreme difference between fire severity explain the variability in the data, together with he standard deviation. In fact, in other to show the plot of `severity` we need to apply a Logarithmic Scale to compress those extreme values and allow us to visualize and interpret the full distribution of `severity` .
 
 ```{r eval= FALSE}
 #| warning: false
 #| message: false
 
 ggplot(fire_train, aes(x = severity)) +
-  geom_histogram(bins = 70, fill = "tomato", color = "black") +
+  geom_histogram(bins = 70, fill = "purple", color = "black") +
   scale_x_log10() +
   labs(title = "Distribution of Fire Severity (Log Scale)", x = "Severity", y = "Count of Fires") +
   theme_minimal()
 ```
 
-As predicted, `severity` has a clear right-skewed distribution. Here is how to interpret the Logarithmic Scale:
+As predicted, `severity` has a clear right-skewed distribution. Here is how to interpret the Log Scale:
 
 | Notation | Acres Burned |
 |----------|--------------|
@@ -342,6 +345,8 @@ As predicted, `severity` has a clear right-skewed distribution. Here is how to i
 | 1e+05    | 100,000      |
 | 1e+06    | 1,000,000    |
 
+Hence, the histogram reveals that the great majority of fires in our training set burn between 10 to 1,000 acres. Including an extreme "high peak" at a little before 100 acres, which explains the median of 83 from our Summary.
+
 Now, let's compare the `severity` of the fires by `season` of the year:
 
 ```{r}
@@ -349,7 +354,7 @@ Now, let's compare the `severity` of the fires by `season` of the year:
 #| message: false
 
 ggplot(fire_train, aes(x = season, y = severity)) +
-  geom_boxplot(fill = "tomato") +
+  geom_boxplot(fill = "purple") +
   scale_y_log10() +
   labs(
     title = "Severity of Fires by Season (Log Scale)",
@@ -359,7 +364,7 @@ ggplot(fire_train, aes(x = season, y = severity)) +
   theme_minimal()
 ```
 
-Hence, we can see that the median fire severity appears consistent across the seasons, with about half of the fires in each season burned around a little below 100 acres. However, Fall and Summer demonstrate to have the most outliers (extreme fire events) with fire severity well above 10,000 acres and even reaching up to over 1,000,000 acres, in Summer. This strongly suggests that while the typical size of fires in our training set do not vary much across seasons, the most severe fires tend to happen during Summer and Fall.
+Hence, we can see that the median fire severity appears consistent across the seasons, with about half of the fires in each season burned around or a little below 100 acres. However, Fall and Summer demonstrate to have the most outliers (extreme fire events) with severity well above 10,000 acres and even reaching up to over 1,000,000 acres, in Summer. This strongly suggests that while the typical size of fire in our training set do not vary much across seasons, the most severe fires tend to happen during Summer and Fall.
 
 ```{r}
 fire_train |>
@@ -374,34 +379,169 @@ median = median(severity),
 Q3 = quantile(severity, 0.75),
 max = max(severity)
 )
-
 ```
 
-More precisely, we can also notice how many more fires happened in California during Summer compared to the other seasons, representing almost 64% of the amount of fires in our training set.
+More precisely, notice how many more fires happened in California during Summer compared to the other seasons, 1,400 fire incidents representing around 63% of the fires in our training set. Hence, this suggests that fire incidents in our training set tend to happen significantly more often during the Summer than other seasons.
+
+What if we look at the fire severity over the years. However, we must be careful to not include the fire incidents from 2025 since we are only in the middle of the year and the amount of fires will most likely be less than other years. Hence, including those could cause a misleading plot. Thus, we will subset the rows of `fire_train` to not include the incidents from 2025.
+
+[**Note**]{.underline}: We did not just remove the fires from 2025 from `fire_data` , the whole data set, because the data was useful for us to plot the `severity` distribution and to analyze its relationship with `season` .
+
+```{r}
+fire_over_years <- fire_data |> 
+  filter(year <= 2024)
+```
+
+```{r}
+fire_over_years |>
+group_by(year) |>
+summarize(
+num_total = n(),
+mean = mean(severity),
+sd = sd(severity),
+min = min(severity),
+Q1 = quantile(severity, 0.25),
+median = median(severity),
+Q3 = quantile(severity, 0.75),
+max = max(severity)
+)
+```
 
 ```{r eval=FALSE}
 #| warning: false
 #| message: false
 
-ggplot(fire_train, year < 2025, aes(x = year, y = severity)) +
-  geom_point(alpha = 0.3) +
-  geom_smooth(method = "loess") +
+ggplot(
+  data = fire_over_years,
+  mapping = aes(
+    x = year, 
+    y = severity
+    )
+  ) +
+  
+  geom_point(
+    alpha = 0.2
+    ) +
+  
+  geom_smooth(method = "loess", se = FALSE, color = "tomato") +
+  
   scale_y_log10() +
-  labs(title = "Fire Severity Over Time", y = "Acres Burned (Log Scale)"
+  scale_x_continuous(breaks = seq(2013, 2024, 1)) +
+  
+  labs(title = "Fire Severity Over Time",
+       x = "Years",
+       y = "Severity (Log Scale)"
        )
 
 ```
 
-Our choice of alpha here, "`alpha = 0.3`" is to reduce the opacity of the data points and make them more readable.
+Hence, this plot suggests that `year` have a slight effect on `severity` .
 
-\# Extreme Fires
+[**OBS**]{.underline}: Our choice of alpha here, "`alpha = 0.2`" is to reduce the opacity of the data points and make them more readable.
 
-Although, let's analyze how much does `multi_county` and `is_complex` variables are affecting our results. Hence, let's analyze if the extreme fires, the ones that affect multiple counties and that become complex are skewing our results. It's plausible to assume they might skew our data since it would make sense that those extreme fires might have big severity, most likely burn more acres than others. Thus, let's explore further:
+```{r}
+#| warning: false
+#| message: false
+
+ggplot(data = fire_train, 
+       mapping = aes(
+         x = season,
+         y = severity
+         )
+       ) +
+    scale_y_log10() +
+  geom_boxplot(fill = "purple") + 
+  geom_point(aes(color = year), 
+             alpha = 0.8
+             )
+```
+
+### Complex Fires
+
+As we have noticed from the `severity` 's histogram and 5-number summary, the great majority of fires burned below 500 acres. The ones that end up burning above 500 acres are definitely skewing the `severity` distribution and its average. Let's analyze how does the `is_complex` variable affect the trends in our results. Hence, let's analyze if the "non-complex fires", the ones that do not do not classify as complex are skewing our results. It's plausible to assume they might skew our data since it would make sense that complex fires might have a bigger severity than others, since they normally consist of two or more fires in the same area. It sounds reasonable that they could most likely outburn other non-complex fires. Thus, let's explore further:
+
+```{r}
+#| warning: false
+#| message: false
+
+fire_train |> 
+  select(name, severity, is_complex, county, year) |> 
+  filter(severity > 500)
+```
+
+Hence, out of the 2212 fire incidents in our training set, only 464 indicate a severity higher than 500 acres. Representing around 21% of the fires in the training set. Including the ultimate outlier of this entire data set, the *August Complex* from 2020, a fire so devastating that burned 1,032,648 acres.
+
+Which again, it means that two or more fires burned in the same general area and were managed under a single incident command or unified command.
+
+It might be interesting to check how the distribution of `severity` would look like without these extreme fire incidents. Thus,
+
+```{r}
+#| warning: false
+#| message: false
+
+fire_non_extreme <- fire_data |> 
+  filter(severity <= 500)
+
+fire_non_extreme |>
+  summarize(
+    num_total = n(),
+    mean = mean(severity),
+    sd = sd(severity),
+    min = min(severity),
+    Q1 = quantile(severity, 0.25),
+    median = median(severity),
+    Q3 = quantile(severity, 0.75),
+    max = max(severity)
+    )
+
+ggplot(fire_non_extreme, aes(x = severity)) +
+  
+  geom_histogram(bins = 70, fill = "purple", color = "black") +
+
+  labs(title = "Distribution of Non-Complex Fire Severity", x = "Severity", y = "Count of Fires") +
+  
+  theme_minimal()
+```
+
+Hence, the distribution of `severity` shifted a little bit to the center. However, it still shows a right-skewed distribution and considerable variability that is explained by the 106 acres standard deviation and this time not so absurd difference between the average (96 acres) vs the median (53 acres).
+
+Furthermore, let's check if `is_complex` affects `severity`:
+
+```{r}
+#| warning: false
+#| message: false
+
+fire_train |>
+group_by(is_complex) |>
+summarize(
+num_total = n(),
+mean = mean(severity),
+sd = sd(severity),
+min = min(severity),
+Q1 = quantile(severity, 0.25),
+median = median(severity),
+Q3 = quantile(severity, 0.75),
+max = max(severity)
+)
+
+ggplot(fire_train, aes(x = is_complex, y = severity)) +
+  geom_boxplot(fill = "orange") +
+      scale_y_log10() +
+
+  labs(
+    title = "Severity of Fires by Season (Log Scale)",
+    x = "Complex",
+    y = "Severity"
+  ) +
+  theme_minimal()
+```
+
+Even though there are only 41 Complex fires out of 2212 fires in our training set, the median and mean of the Complex fires are extremely higher than of the regular fires. More specifically, the median of Complex fires is 12,503 acres vs the median of the regular fires is 80 acres. Therefore, it is recommended to move forward to our modeling while considering the complex fire incidents, because according to the box plots and 5-number summary, they do seem to show a significant effect in severity. Hence, they are important for our analysis since severity is our response variable.
 
 ## Modeling
 
 ## Insights
 
-\# Limitations and Future Work
+### Limitations and Future Work
 
-\# Reflection
+### Reflection
