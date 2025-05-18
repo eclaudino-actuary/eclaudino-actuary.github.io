@@ -253,6 +253,9 @@ Hence, we have 61 missing data points in total in our data. More precisely, 51 r
 #| message: false
 
 vis_miss(fire_data, cluster = TRUE, sort_miss = TRUE)
+```
+
+```{r}
 
 gg_miss_upset(fire_data,
               nsets = 9)
@@ -456,7 +459,7 @@ ggplot(data = fire_train,
              )
 ```
 
-### Complex Fires
+# Complex Fires
 
 As we have noticed from the `severity` 's histogram and 5-number summary, the great majority of fires burned below 500 acres. The ones that end up burning above 500 acres are definitely skewing the `severity` distribution and its average. Let's analyze how does the `is_complex` variable affect the trends in our results. Hence, let's analyze if the "non-complex fires", the ones that do not do not classify as complex are skewing our results. It's plausible to assume they might skew our data since it would make sense that complex fires might have a bigger severity than others, since they normally consist of two or more fires in the same area. It sounds reasonable that they could most likely outburn other non-complex fires. Thus, let's explore further:
 
@@ -542,6 +545,6 @@ Even though there are only 41 Complex fires out of 2212 fires in our training se
 
 ## Insights
 
-### Limitations and Future Work
+ # Limitations and Future Work
 
-### Reflection
+ # Reflection
