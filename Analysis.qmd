@@ -19,7 +19,7 @@ The devastating series of wildfires in Los Angeles County earlier this January i
 
 -   Are wildfires in California worsening over time in terms of severity?
 
--   Are there specific counties in California where wildfires are more likely to occur?
+-   Does a Complex fire in California influence fire severity?
 
 By addressing these questions, I hope to better understand the patterns behind wildfire behavior—an understanding that could be crucial in shaping actuarial risk models and insurance strategies in the future.
 
@@ -43,7 +43,7 @@ $$
 
 ## Main Objective
 
-I believe the insights gained from my analysis should be only considered could be highly relevant for the State of California and its residents, as wildfires continue to threaten countless homes and families each year. Addressing this issue allows me to connect my career aspirations with a real opportunity to contribute to the well-being of those affected by this recurring and devastating disaster. The inferences drawn from my data analysis have the potential to inform better predictive models and encourage continuous improvement in wildfire risk assessment. Ultimately, I hope my work can serve as a small but meaningful step toward helping communities prepare for, mitigate, and recover from the growing threat of wildfires.
+I believe the insights gained from my analysis should be beneficial for my growth as a data scientist. Addressing this issue allows me to connect my career aspirations with a real opportunity to showcase the data analysis approaches I have learned in this class. The inferences drawn from my project should be merely illustrative and not applied in the real world since my analysis have so many limitations. Although, I believe this project have the potential to incentivize other data scientists, statisticians, and actuaries to help this issue by working on better predictive models and encourage continuous improvement in wildfire risk assessment. Ultimately, I hope my work can serve as a small but meaningful step toward the improvement of data analysis models to tackle the growing threat of wildfires.
 
 ## Packages
 
@@ -57,12 +57,17 @@ library(readr)
 library(dplyr)
 library(rsample)
 library(ggplot2)
-library(recipes)
 library(naniar)
-library(broom)
 library(lubridate)
 library(tidyr)
 library(janitor)
+library(recipes)
+library(parsnip)
+library(workflows)
+library(yardstick)
+library(tune)
+library(dials)
+library(broom)
 ```
 
 | Package | Function |
@@ -256,6 +261,8 @@ vis_miss(fire_data, cluster = TRUE, sort_miss = TRUE)
 ```
 
 ```{r}
+#| warning: false
+#| message: false
 
 gg_miss_upset(fire_data,
               nsets = 9)
@@ -532,7 +539,7 @@ ggplot(fire_train, aes(x = is_complex, y = severity)) +
       scale_y_log10() +
 
   labs(
-    title = "Severity of Fires by Season (Log Scale)",
+    title = "Severity of Fires by Complexity (Log Scale)",
     x = "Complex",
     y = "Severity"
   ) +
@@ -543,8 +550,145 @@ Even though there are only 41 Complex fires out of 2212 fires in our training se
 
 ## Modeling
 
+Based on our Exploratory Data Analysis and the fact that our response variable `severity` is numeric with variable predictors categorical, I decided to perform my modeling with *Multiple Linear Regression*.
+
+## Multiple Linear Regression
+
+```{r}
+lm_model <- lm(severity ~ season + year + is_complex, 
+               data = fire_train)
+
+summary(lm_model)
+```
+
+Thus, we are modeling `severity` based on `season`, `year`, and `is_complex`. Our intercept $(-49046)$ is the expected severity of a non-complex fire when it happens in the Fall season.
+
+The coefficients `seasonSpring` , `seasonSummer`, `seasonWinter` reveal the expected difference in severity when compared to the Fall season. Notice how none of the p-values are significant, hence $p > 0.05$. Thus, there is no sufficient evidence to conclude that fire severity depends by season after controlling for `year` and `is_complex` .
+
+The coefficient of `year` is $25.28$ would imply that the severity of a fire increases by $25.28$ acres per year. However, there is not sufficient evidence to conclude this since the p-value = $0.914 > 0.05$.
+
+The coefficient of `is_complexTRUE` is $75,846$. Since the p-value is extremely small, p \< 2e-16. We have very strong evidence that Complex fires burn on average $75,846$ acres more than regular fires. Hence, making `is_complex` our only statiscally significant predictor variable in this model.
+
+To measure our model performance, we can look at the given measures in our model summary:
+
+-   Residual Standard Error (RSE): Measures the average size of error in our model, how far off our predictions are, given by
+
+    $$
+    \text{RSE} = \sqrt{ \frac{1}{n - p - 1} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 }
+    $$
+
+-   R-squared: Measures how much of the variation in our response variable is explained by the predictors in our model, given by
+
+    $$
+    R^2 = 1 - \frac{SS_{\text{res}}}{SS_{\text{tot}}}
+    $$
+
+    where,
+
+    $$
+    SS_{\text{res}} = \sum_{i=1}^{n} (y_i - \hat{y}_i)^2, \quad SS_{\text{tot}} = \sum_{i=1}^{n} (y_i - \bar{y})^2
+    $$
+
+Hence, our $RSE$ is telling us that the average prediction error in our model is around 37,210 acres. This is not good because the error is too high. Plus, our $R^2$ tells us that our model can only explain 7.2% variation in severity. This is also not good because it means that our model does not tell us much.
+
+Our model lack of success must be because of how strongly skewed the distribution of `severity` is. Hence, let's apply a log transformation with the goal to reduce the skewness and improve our model. However, we must then not include those fires which severity was 0, hence smaller fires that burned 0 acres.
+
+[**Note**]{.underline}: This is because log(0) is undefined.
+
+Thus by doing so, we are leaving behind from our modeling 17 fire observations, as observed in the chunk below.
+
+```{r}
+fire_train |> 
+  select(name, severity) |> 
+  filter(severity == 0)
+```
+
+[**Note**]{.underline}: This is because log(0) is undefined.
+
+```{r}
+
+fire_train_non_zero <- fire_train %>%
+  filter(severity > 0)
+
+lm_model_log <- lm(log10(severity) ~ season + year + is_complex, 
+                   data = fire_train_non_zero)
+
+summary(lm_model_log)
+```
+
+Therefore, this log transformation increased the model's performance and efficiency. This is notable since now we have three statistically significant predictors.
+
+-   `seasonSpring` has a p-value of $0.0148 < 0.05$. Hence, there is sufficient evidence to conclude that fires in the Spring burn, in total, $10^{-0.16} = 0.69$ fewer acres than fires in the Fall.
+
+-   `year` has a p-value of 7.25e-16. Therefore, there is very strong evidence suggesting that fires are getting smaller each year, more precisely, reducing $10^{-0.04} = 0.91$ acres per year.
+
+-   is_complexTRUE has a p-value of less than 2e-16. Thus, there is very strong evidence claiming that Complex fires burn, in total, $10^2 = 100$ more acres than regular fires.
+
+Hence, this model tell us that Complex fires are the biggest predictor variable of severity. Fires are slightly decreasing in size/severity over time. Lastly, only Spring season shows a significant difference in size/severity of fires than in the Fall.
+
+For our model's performance, $RSE = 0.8507$ and $R^2 = 0.1145$. Hence, the average prediction error in our model is $10^{0.8507} = 7.09$ acres. This is a much better error than before. Plus, our $R^2$ tells us that our model can only explain $11.45$% variation in severity. This is still not that good because it means that our model does not tell us much.
+
+Now, we must fit our model to the test set (`fire_set`) since we want to answer our inference questions. We must create a subset of the test set though to filter the fires that did not burned 0 acres, call it `fire_test_non_zero`.
+
+```{r}
+fire_test_non_zero <- fire_test %>%
+  filter(severity > 0)
+```
+
+Thus, we now predict on the test set.
+
+```{r}
+fire_test_non_zero <- fire_test_non_zero %>%
+  
+  mutate(predicted_log_severity = 
+           predict(lm_model_log, 
+                   newdata = fire_test_non_zero))
+```
+
+```{r}
+fire_test_non_zero <- fire_test_non_zero %>%
+  
+  mutate(log_severity = log10(severity))
+
+metrics(fire_test_non_zero, truth = log_severity, 
+        estimate = predicted_log_severity)
+
+```
+
 ## Insights
 
- # Limitations and Future Work
+Therefore, we are now able to make inference and answer our questions that motivated my interest for this project. We were able to arrive at these results by applying Multiple Linear Regression with a Log transformation to help with the skewness of `severity`.
 
- # Reflection
+-   **Does the severity of a fire depend on the season of the year?**
+
+    Yes. During Exploratoy Data Analysis, we could see through the box plots how fires more severe tend to happen during Fall and Summer. However, we were not able to prove that relationship through our model. Although, our model was still able to determine that there is dependency of a fire on one specific season; Spring is shown to burn 0.69 fewer acres than in the Fall.
+
+-   **Are wildfires in California worsening over time in terms of severity?**
+
+    No. In fact, our model showed very strong significance that fires in California are becoming less severe over time, reducing by 0.91 acres per year.
+
+-   **Does a Complex fire in California influence fire severity?**
+
+    Yes. In fact, our model successfully showed that Complex fires are the biggest predictor variable of a fire severity in California. They burn in total 100 acres more than regular fires.
+
+## Limitations and Future Work
+
+Our model was able to make some inference, but it is not the greatest, there are definitely some limitations to be aware of.
+
+First off, it's not great at predicting the most extreme fires, the ones that burn huge numbers of acres. These are rare, but when they happen, they can be very different from the more typical fires. Our model tends to underpredict those big ones, probably because there's not enough of them in the training data to really learn from. Also, we used a log transformation to make the model work better, which helps with scale, but it can also make interpretation a bit less intuitive.
+
+Another limitation is the kind of data we’re working with. All of our predictors are categorical, so we’re missing out some relevant numerical variables that might have a strong relationship with severity like temperature, humidity, wind speed, or vegetation type. If someone were to collect more detailed weather or geographic data for each incident, the model could be way more accurate.
+
+As for assumptions, we used a multiple linear regression model, which assumes linear relationships, normal residuals, constant variance, etc. These assumptions don’t always perfectly hold up in real-world wildfire data, especially with such skewed outcomes like severity.
+
+Talking about ethics, it's worth thinking about how this data is used. This content is merely illustrative and people should not use it to allocate resources, for example. Although, if this model gets improved and becomes more accurate then it’s important to make sure under-resourced areas aren't overlooked just because the model predicts less severe fires in that location. Also, because if the data collection itself missed smaller or less-reported fires (especially in rural or underserved regions), it could create bias in the results.
+
+So overall, the model is helpful for our illustrative purpose of showcasing Modern Data Analysis skills, but definitely not to be applied to the real world fire incidents in California. I believe there’s room for improvement both in the data collection and the analysis. Hence, I plan to keep working on this model to make it even more accurate and precise.
+
+## Reflection
+
+This project contributed significantly to my understanding of statistical learning and all the steps that one must go through to so that we can answer inference questions from a raw data set, including Research, Data Wrangling, EDA, and Modeling. Plus, I have learned more about the fires in California by looking at their data through distributions and plots. Also, I learned about different associations between the characteristics of a fire, which we called variables.
+
+Math 437 is one of the most important, if not the most important, courses I have taken at CSUF. This is because this class is a big review of all statistical concepts learned from previous Undergrad math courses, while introducing new advanced statistical approaches, and also while teaching how to apply those old and new concepts in R for data analysis. In my opinion, what makes this class so important, is that it makes us actually work with the data from scratch and understand what those numbers, variables, distributions, associations, predictions, and models actually mean.
+
+Hence, I have definitely grown as a mathematician, statistician, and data scientist after taking this course because I had to study as the first one, apply the knowledge as the second, and think analytically like the third. I hope to continue growing in all three areas, as it will contribute to my career as an actuary. I hope to apply the knowledge I have learned from this class in my internship at Mercury Insurance. Not only the technical skills in R, but also the mindset of a true data analyst. 
