@@ -333,7 +333,7 @@ Hence, this tell us that from the 2,212 fires observed in our training set, 50% 
 
 Furthermore, notice how we have observations of fires that burned 0 acres and a fire that was able to reach the incredible 1,032,648 acres mark. This extreme difference between fire severity explain the variability in the data, together with he standard deviation. In fact, in other to show the plot of `severity` we need to apply a Logarithmic Scale to compress those extreme values and allow us to visualize and interpret the full distribution of `severity` .
 
-```{r eval= FALSE}
+```{r}
 #| warning: false
 #| message: false
 
@@ -417,7 +417,7 @@ max = max(severity)
 )
 ```
 
-```{r eval=FALSE}
+```{r}
 #| warning: false
 #| message: false
 
@@ -661,7 +661,7 @@ Therefore, we are now able to make inference and answer our questions that motiv
 
 -   **Does the severity of a fire depend on the season of the year?**
 
-    Yes. During Exploratoy Data Analysis, we could see through the box plots how fires more severe tend to happen during Fall and Summer. However, we were not able to prove that relationship through our model. Although, our model was still able to determine that there is dependency of a fire on one specific season; Spring is shown to burn 0.69 fewer acres than in the Fall.
+    Yes. During Exploratory Data Analysis, we could see through the box plots how fires more severe tend to happen during Fall and Summer. However, we were not able to prove that relationship through our model. Although, our model was still able to determine that there is dependency of a fire on one specific season; Spring is shown to burn 0.69 fewer acres than in the Fall.
 
 -   **Are wildfires in California worsening over time in terms of severity?**
 
